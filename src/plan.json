@@ -1,0 +1,442 @@
+[
+ {
+  "id": "d.b2.01",
+  "day": 1,
+  "title_ru": "Прибытие: ночной автобус в AŞTİ",
+  "title_tr": "Varış: AŞTİ'ye gece otobüsü",
+  "unit": "Прибытие",
+  "kind": "arrival",
+  "place": "Автовокзал АШТИ",
+  "lessons": 1
+ },
+ {
+  "id": "d.b2.02",
+  "day": 2,
+  "title_ru": "Прибытие: первые часы в Чанкае",
+  "title_tr": "Varış: Çankaya'da ilk saatler",
+  "unit": "Прибытие",
+  "kind": "arrival",
+  "place": "Чанкая",
+  "lessons": 1
+ },
+ {
+  "id": "d.b2.03",
+  "day": 3,
+  "title_ru": "Заявление в полицию",
+  "title_tr": "Polise ihbar ve tutanak",
+  "unit": "Когда всё пропало",
+  "kind": "lesson",
+  "place": "Отделение полиции",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.04",
+  "day": 4,
+  "title_ru": "Консульство: временный документ",
+  "title_tr": "Konsoloslukta geçici belge",
+  "unit": "Когда всё пропало",
+  "kind": "lesson",
+  "place": "Консульство",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.05",
+  "day": 5,
+  "title_ru": "Карта заблокирована",
+  "title_tr": "Kart bloke",
+  "unit": "Когда всё пропало",
+  "kind": "lesson",
+  "place": "Отделение банка",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.06",
+  "day": 6,
+  "title_ru": "Сайт ведомства: как это читать",
+  "title_tr": "Kurum sitesi: nasıl okunur",
+  "unit": "Когда всё пропало",
+  "kind": "lesson",
+  "place": "Чанкая",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.07",
+  "day": 7,
+  "title_ru": "Нотариус и присяжный перевод",
+  "title_tr": "Noter ve yeminli tercüme",
+  "unit": "Когда всё пропало",
+  "kind": "lesson",
+  "place": "Нотариус",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.08",
+  "day": 8,
+  "title_ru": "Протокол и что из него следует",
+  "title_tr": "Tutanak ve sonuçları",
+  "unit": "Когда всё пропало",
+  "kind": "lesson",
+  "place": "Отделение полиции",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.09",
+  "day": 9,
+  "title_ru": "Заявление в страховую",
+  "title_tr": "Sigortaya hasar başvurusu",
+  "unit": "Деньги, спор, возмещение",
+  "kind": "lesson",
+  "place": "Офис страховой",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.10",
+  "day": 10,
+  "title_ru": "Претензия в прокатную фирму",
+  "title_tr": "Kiralama şirketine şikâyet",
+  "unit": "Деньги, спор, возмещение",
+  "kind": "lesson",
+  "place": "Офис страховой",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.11",
+  "day": 11,
+  "title_ru": "Изложить дело устно",
+  "title_tr": "Olayı sözlü anlatmak",
+  "unit": "Деньги, спор, возмещение",
+  "kind": "lesson",
+  "place": "Арбитражная комиссия по делам потребителей",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.12",
+  "day": 12,
+  "title_ru": "Неудобные вопросы и сумма",
+  "title_tr": "Zor sorular ve meblağ",
+  "unit": "Деньги, спор, возмещение",
+  "kind": "lesson",
+  "place": "Арбитражная комиссия по делам потребителей",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.13",
+  "day": 13,
+  "title_ru": "Отказ между строк",
+  "title_tr": "Satır aralarında ret",
+  "unit": "Деньги, спор, возмещение",
+  "kind": "lesson",
+  "place": "Офис страховой",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.14",
+  "day": 14,
+  "title_ru": "Договор проката: что ты подписал",
+  "title_tr": "Kiralama sözleşmesi: ne imzaladın",
+  "unit": "Деньги, спор, возмещение",
+  "kind": "lesson",
+  "place": "Арбитражная комиссия по делам потребителей",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.15",
+  "day": 15,
+  "title_ru": "Шесть окон за один день",
+  "title_tr": "Bir günde altı gişe",
+  "unit": "Официальный язык",
+  "kind": "lesson",
+  "place": "Площадь Кызылай",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.16",
+  "day": 16,
+  "title_ru": "Письмо в три инстанции: регистр",
+  "title_tr": "Üç kuruma yazı: üslup",
+  "unit": "Официальный язык",
+  "kind": "lesson",
+  "place": "Чанкая",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.17",
+  "day": 17,
+  "title_ru": "Приём: взять слово и не потерять",
+  "title_tr": "Görüşmede söz almak",
+  "unit": "Официальный язык",
+  "kind": "lesson",
+  "place": "Арбитражная комиссия по делам потребителей",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.18",
+  "day": 18,
+  "title_ru": "Цифры ущерба",
+  "title_tr": "Zarar rakamları",
+  "unit": "Официальный язык",
+  "kind": "lesson",
+  "place": "Офис страховой",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.19",
+  "day": 19,
+  "title_ru": "Сроки и приоритеты",
+  "title_tr": "Süreler ve öncelikler",
+  "unit": "Официальный язык",
+  "kind": "lesson",
+  "place": "Чанкая",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.20",
+  "day": 20,
+  "title_ru": "Аныткабир: память и государство",
+  "title_tr": "Anıtkabir: bellek ve devlet",
+  "unit": "В столице",
+  "kind": "lesson",
+  "place": "Аныткабир",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.21",
+  "day": 21,
+  "title_ru": "Музей анатолийских цивилизаций",
+  "title_tr": "Anadolu Medeniyetleri Müzesi",
+  "unit": "В столице",
+  "kind": "lesson",
+  "place": "Музей анатолийских цивилизаций",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.22",
+  "day": 22,
+  "title_ru": "Кызылай и Тунали: ритм столицы",
+  "title_tr": "Kızılay ve Tunalı: başkent ritmi",
+  "unit": "В столице",
+  "kind": "lesson",
+  "place": "Площадь Кызылай",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.23",
+  "day": 23,
+  "title_ru": "Университетская Анкара",
+  "title_tr": "Ankara üniversiteleri",
+  "unit": "В столице",
+  "kind": "lesson",
+  "place": "Билькент и Хаджеттепе",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.24",
+  "day": 24,
+  "title_ru": "Чай в Хамамёню и старая Анкара",
+  "title_tr": "Hamamönü'nde çay ve eski Ankara",
+  "unit": "В столице",
+  "kind": "lesson",
+  "place": "Анкарская крепость и Хамамёню",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.25",
+  "day": 25,
+  "title_ru": "Изобретения, которые изменили быт",
+  "title_tr": "Hayatı değiştiren icatlar",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Музей Ченгельхан",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.26",
+  "day": 26,
+  "title_ru": "Как читать научную статью",
+  "title_tr": "Bilimsel makale nasıl okunur",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Университет ОДТЮ",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.27",
+  "day": 27,
+  "title_ru": "Животные Анатолии",
+  "title_tr": "Anadolu'nun canlıları",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Озеро Эймир и Гёльбашы",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.28",
+  "day": 28,
+  "title_ru": "Землетрясение: что делать",
+  "title_tr": "Deprem: ne yapmalı",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Седьмая улица Бахчелиэвлер",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.29",
+  "day": 29,
+  "title_ru": "Климат и энергия",
+  "title_tr": "İklim ve enerji",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Университет ОДТЮ",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.30",
+  "day": 30,
+  "title_ru": "Что написано на этикетке",
+  "title_tr": "Etikette ne yazıyor",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Седьмая улица Бахчелиэвлер",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.31",
+  "day": 31,
+  "title_ru": "Гёбеклитепе и загадки",
+  "title_tr": "Göbeklitepe ve bilinmezler",
+  "unit": "Наука и природа",
+  "kind": "lesson",
+  "place": "Музей анатолийских цивилизаций",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.32",
+  "day": 32,
+  "title_ru": "Турецкое кино",
+  "title_tr": "Türk sineması",
+  "unit": "Культура и зрелище",
+  "kind": "lesson",
+  "place": "Площадь Кызылай",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.33",
+  "day": 33,
+  "title_ru": "Выставка и интервью",
+  "title_tr": "Sergi ve röportaj",
+  "unit": "Культура и зрелище",
+  "kind": "lesson",
+  "place": "ЦерМодерн",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.34",
+  "day": 34,
+  "title_ru": "Туризм изнутри",
+  "title_tr": "İçeriden turizm",
+  "unit": "Культура и зрелище",
+  "kind": "lesson",
+  "place": "Улица Туналы Хильми",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.35",
+  "day": 35,
+  "title_ru": "Фотография города",
+  "title_tr": "Şehrin fotoğrafı",
+  "unit": "Культура и зрелище",
+  "kind": "lesson",
+  "place": "Улус",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.36",
+  "day": 36,
+  "title_ru": "Оттенки чувств",
+  "title_tr": "Duyguların tonları",
+  "unit": "Культура и зрелище",
+  "kind": "lesson",
+  "place": "Парк Кугулу",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.37",
+  "day": 37,
+  "title_ru": "Юмор и Карагёз",
+  "title_tr": "Mizah ve Karagöz",
+  "unit": "Культура и зрелище",
+  "kind": "lesson",
+  "place": "Анкарская крепость и Хамамёню",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.38",
+  "day": 38,
+  "title_ru": "Новости и аналитика: между строк",
+  "title_tr": "Haber ve analiz: satır arası",
+  "unit": "Общество и институты",
+  "kind": "lesson",
+  "place": "Площадь Кызылай",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.39",
+  "day": 39,
+  "title_ru": "Права потребителя и суд",
+  "title_tr": "Tüketici hakları ve hakem heyeti",
+  "unit": "Общество и институты",
+  "kind": "lesson",
+  "place": "Арбитражная комиссия по делам потребителей",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.40",
+  "day": 40,
+  "title_ru": "Больница для приезжего",
+  "title_tr": "Yabancı için hastane",
+  "unit": "Общество и институты",
+  "kind": "lesson",
+  "place": "Больница и частная клиника",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.41",
+  "day": 41,
+  "title_ru": "Папка документов поездки",
+  "title_tr": "Seyahat dosyası",
+  "unit": "Общество и институты",
+  "kind": "lesson",
+  "place": "Чанкая",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.42",
+  "day": 42,
+  "title_ru": "Остановка: как Анкара стала столицей",
+  "title_tr": "Durak: Ankara nasıl başkent oldu",
+  "unit": "Остановка",
+  "kind": "city_stop",
+  "place": "Улус",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.43",
+  "day": 43,
+  "title_ru": "Остановка: Моя Анкара",
+  "title_tr": "Durak: Benim Ankara'm",
+  "unit": "Остановка",
+  "kind": "city_stop",
+  "place": "Чанкая",
+  "lessons": 2
+ },
+ {
+  "id": "d.b2.44",
+  "day": 44,
+  "title_ru": "Отправление: закрыть дело и уехать",
+  "title_tr": "Ayrılış: dosyayı kapatıp yola çıkmak",
+  "unit": "Отправление",
+  "kind": "departure",
+  "place": "Консульство",
+  "lessons": 2
+ }
+]
