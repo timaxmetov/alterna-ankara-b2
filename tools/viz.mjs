@@ -114,8 +114,79 @@ function pairs(v) {
         </figure>`;
 }
 
+/** Открытие юнита, как в Yeni İstanbul: три колонки BECERİLER / DİL BİLGİSİ / KELİMELER. */
+export function opener(op) {
+  const col = (tr, ru, items, i) => `<div class="vz-open__c" style="--i:${i}"><p class="vz-open__h"><span lang="tr">${tr}</span><small>${ru}</small></p><ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  return `      <div class="vz vz-open">${col('BECERİLER', 'умения', op.skills, 0)}${col('DİL BİLGİSİ', 'грамматика', op.grammar, 1)}${col('KELİMELER', 'слова', op.words, 2)}</div>`;
+}
+
+/** Облако слов: размер — сколько раз слово прозвучало в репликах истории. */
+export function cloud(words, text) {
+  const low = text.toLocaleLowerCase('tr');
+  // основа слова: у составных — вся фраза, у глаголов без -mak/-mek, минимум 4 буквы
+  const stem = (w) => { const l = w.toLocaleLowerCase('tr'); if (l.includes(' ')) return l; const s = l.replace(/(mak|mek)$/, ''); return s.length <= 5 ? s : s.slice(0, Math.max(5, s.length - 2)); };
+  const counts = words.map(([tr]) => Math.max(1, low.split(stem(tr)).length - 1));
+  const max = Math.max(...counts);
+  const items = words.map(([tr, ru], i) => {
+    const lvl = 1 + Math.round(((counts[i] - 1) / Math.max(1, max - 1)) * 3);
+    return `<li style="--i:${i}"><button type="button" class="vz-cloud__w" data-lvl="${lvl}" data-say="${esc(tr)}" title="${esc(ru)} · ${counts[i]}×"><span lang="tr">${esc(tr)}</span><small>${esc(ru)}</small></button></li>`;
+  });
+  // крупные в середину, мелкие по краям — облако читается как облако, а не как список
+  const order = [...items.keys()].sort((a, b) => counts[b] - counts[a]);
+  const mid = [];
+  order.forEach((k, j) => (j % 2 ? mid.push(items[k]) : mid.unshift(items[k])));
+  return `      <div class="vz vz-cloud"><ul class="vz-cloud__l">${mid.join('')}</ul></div>`;
+}
+
+/** Konuşma: ролевая карточка, шаги реплик и таймер на минуту. */
+export function speak(k, icons) {
+  const steps = k.steps.map((s, i) => `<li style="--i:${i}"><span class="vz-speak__n">${i + 1}</span><span>${esc(s)}</span></li>`).join('');
+  const model = k.model.map(([who, tr, ru]) => `<li><b>${esc(who)}</b><span lang="tr">${esc(tr)}</span>${sayBtn(tr, icons.say)}<small>${esc(ru)}</small></li>`).join('');
+  return `      <figure class="vz vz-speak" data-viz="speak" data-sec="${k.seconds || 60}">
+        <figcaption class="vz__h">Ролевая карточка <span>${esc(k.where || '')}</span></figcaption>
+        <div class="vz-speak__card">
+          <p><b>Ситуация.</b> ${esc(k.situation)}</p>
+          <p><b>Твоя цель.</b> ${esc(k.goal)}</p>
+        </div>
+        <ol class="vz-speak__steps">${steps}</ol>
+        <div class="vz-speak__timer">
+          <div class="vz-speak__ring" aria-hidden="true"><svg viewBox="0 0 120 120"><circle class="vz-speak__bg" cx="60" cy="60" r="50"/><circle class="vz-speak__fg" cx="60" cy="60" r="50" pathLength="100" stroke-dasharray="100 100"/></svg><b>${k.seconds || 60}</b></div>
+          <div><button type="button" class="lx-btn vz-speak__go">Начать: ${k.seconds || 60} секунд</button><p class="vz-speak__st" aria-live="polite">Нажми и говори вслух, пока идёт круг.</p></div>
+        </div>
+        <button type="button" class="lx-btn lx-btn--ghost vz-speak__show" aria-expanded="false">Показать образец диалога</button>
+        <ol class="vz-speak__model" hidden>${model}</ol>
+      </figure>`;
+}
+
+/** Многоступенчатая диаграмма: фраза меняется шаг за шагом, изменённая часть подсвечена. */
+function steps(v) {
+  const mark = (tr, hl) => (hl && tr.includes(hl) ? esc(tr).replace(esc(hl), `<mark>${esc(hl)}</mark>`) : esc(tr));
+  const li = v.steps.map((s, i) => `<li class="vz-steps__i" data-i="${i}" style="--i:${i}"${i ? '' : ' aria-current="step"'}>
+            <button type="button" class="vz-steps__n" aria-label="Шаг ${i + 1}">${i + 1}</button>
+            <div class="vz-steps__b"><p class="vz-steps__k">${esc(s.label)}</p><p class="vz-steps__tr" lang="tr" data-say="${esc(s.tr)}">${mark(s.tr, s.hl)}</p><p class="vz-steps__ru">${esc(s.ru)}</p><p class="vz-steps__note">${esc(s.note || '')}</p></div>
+          </li>`).join('\n          ');
+  return `<figure class="vz vz-steps" data-viz="steps">
+          <figcaption class="vz__h">${esc(v.title)} <span>шаг за шагом</span></figcaption>
+          <ol class="vz-steps__l">
+          ${li}
+          </ol>
+          <div class="vz-steps__ctrl" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-step="-1">← Назад</button><span class="vz-steps__pos" aria-live="polite">Шаг 1 из ${v.steps.length}</span><button type="button" class="lx-btn" data-step="1">Дальше →</button></div>
+        </figure>`;
+}
+
+/** Дерево выбора: вопрос → вариант → вопрос → готовая фраза. nodes: {id: {q, opts:[{label, to}]} | {tr, ru, note}}. */
+function flow(v, icon) {
+  const results = Object.entries(v.nodes).filter(([, n]) => n.tr).map(([, n]) => `<li><b lang="tr">${esc(n.tr)}</b> — ${esc(n.ru)}</li>`).join('');
+  return `<figure class="vz vz-flow" data-viz="flow" data-nodes="${esc(JSON.stringify(v.nodes))}" data-start="${esc(v.start)}" data-say-icon="${esc(icon)}">
+          <figcaption class="vz__h">${esc(v.title)} <span>отвечай на вопросы — получишь фразу</span></figcaption>
+          <ol class="vz-flow__path" aria-label="Пройденный путь"></ol>
+          <div class="vz-flow__stage" aria-live="polite"></div>
+          <ul class="vz-flow__all">${results}</ul>
+        </figure>`;
+}
+
 export function viz(v, icons) {
-  const f = { map, anatomy: (x) => anatomy(x, icons.say), scale: (x) => scale(x, icons.say), bars, tasks, pairs }[v.type];
+  const f = { map, anatomy: (x) => anatomy(x, icons.say), scale: (x) => scale(x, icons.say), bars, tasks, pairs, steps, flow: (x) => flow(x, icons.say) }[v.type];
   if (!f) throw new Error('неизвестная визуализация: ' + v.type);
   return f(v);
 }

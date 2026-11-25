@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { viz, route } from './viz.mjs';
+import { viz, route, opener, cloud, speak } from './viz.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const IC = JSON.parse(readFileSync(join(ROOT, 'tools/icons.json'), 'utf8'));
@@ -124,9 +124,8 @@ const culture = (c) => c ? `      <aside class="dy-culture"><p class="dy-culture
 /** Поведение страницы сверх kit: анимация сцены (как design.js у дней A1) и самопроверка «скрыть перевод». */
 const PAGE_JS = `<script>
 (() => {
-  const s = document.querySelector('[data-section="ozet"]');
-  const t = s && s.querySelector('[data-hide-ru]');
-  if (t) {
+  document.querySelectorAll('[data-hide-ru]').forEach((t) => {
+    const s = t.closest('section');
     t.addEventListener('click', () => {
       const on = s.classList.toggle('is-hide-ru');
       t.setAttribute('aria-pressed', on);
@@ -137,7 +136,7 @@ const PAGE_JS = `<script>
       const row = e.target.closest('.dy-goal__w, .st-words li');
       if (row && s.classList.contains('is-hide-ru') && !e.target.closest('button')) row.classList.toggle('is-peek');
     }, true);
-  }
+  });
   if (matchMedia('(prefers-reduced-motion: reduce)').matches || !window.gsap) return;
   const q = (c) => document.querySelectorAll('.lx-scene .' + c);
   gsap.from(q('an-drive'), { x: -380, duration: 2.2, ease: 'power3.out', delay: 0.2 });
@@ -164,14 +163,29 @@ function page(D, L, scene, exList) {
   const nav = many
     ? `<nav class="lx-lessons" aria-label="Части дня">${D.lessons.map((x) => `<a href="${x.n === 1 ? 'index.html' : `lesson-${x.n}.html`}"${x.n === L.n ? ' aria-current="page"' : ''}>${x.n}</a>`).join('')}</nav>`
     : '';
-  const toc = L.chapters.map((c, i) => `<li><a href="#ch-${i + 1}" data-toc="ch-${i + 1}" aria-label="Глава ${i + 1}: ${esc(c.title)}">${i + 1}</a></li>`).join('');
+  // Порядок разделов повторяет анатомию урока Yeni İstanbul (book_basis в дорожной карте):
+  // открытие юнита (BECERİLER / DİL BİLGİSİ / KELİMELER) → Hedef dil → Hazırlık → Okuma → Dil bilgisi →
+  // Söz varlığı → Alıştırmalar со сквозной нумерацией → Ya siz? → Dinleme → Yazma → Konuşma → Özet → Sınav.
+  const SECTIONS = [
+    ['p-acilis', 'Açılış'], ['p-hazirlik', 'Hazırlık'], ['p-hikaye', 'Okuma'], ['p-dilbilgisi', 'Dil bilgisi'],
+    ['p-sozluk', 'Kelimeler'], ['p-practice', 'Alıştırma'], ['p-yasiz', 'Ya siz?'], ['p-dinleme', 'Dinleme'],
+    ['p-yazma', 'Yazma'], ['p-konusma', 'Konuşma'], ['p-ozet', 'Özet'], ['p-check', 'Sınav'],
+  ];
+  const toc = SECTIONS.map(([id, t]) => `<li><a href="#${id}" data-toc="${id}"><span lang="tr">${t}</span></a></li>`).join('');
   const storyText = L.chapters.map((c) => c.blocks.map((b) => b.p || b.b?.tr || b.b?.ru || b.note?.text || b.quirk || b.choice?.q || '').join(' ')).join(' ');
-  const goals = L.goals.map(([tr, ru], i) => `        <li class="dy-goal__i" style="--i:${i}"><span class="dy-goal__n" data-ui>${i + 1}</span><span class="dy-goal__w"><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></span><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></li>`).join('\n');
+  const trText = [
+    ...L.chapters.flatMap((c) => c.blocks.map((b) => [b.b?.tr, b.note?.text, ...(b.note?.ex || []).map((x) => x[0]), b.quirk, ...(b.choice?.opts || []).map((o) => o.tr)].filter(Boolean).join(' '))),
+    ...L.goals.map((g) => g[0]), L.yasiz.tr, L.yasiz.model, ...(L.konusma?.model || []).map((m) => m[1]),
+  ].join(' ');
+  const goalLi = ([tr, ru], i) => `        <li class="dy-goal__i" style="--i:${i}"><span class="dy-goal__n" data-ui>${i + 1}</span><span class="dy-goal__w"><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></span><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></li>`;
+  const goals = L.goals.map(goalLi).join('\n');
   const wordsHtml = L.words.map(([tr, ru]) => `        <li><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></li>`).join('\n');
-  const tasksHtml = exList.filter((e) => e.kind === 'practice').map((e) => {
-    const p = e._task;
-    return `      <div class="dy-task" data-kit="${p.kit}"><p class="dy-rubric" lang="tr">${esc(p.rubric)}</p><a-exercise ref="${e.id}"${e.type === 'custom' ? ' data-free' : ''}></a-exercise></div>`;
-  }).join('\n');
+  const practice = exList.filter((e) => e.kind === 'practice');
+  let no = 0;
+  const task = (e) => `      <div class="dy-task" data-kit="${e._task.kit}"><p class="dy-rubric"><span class="dy-no" data-ui>${++no}</span><span lang="tr">${esc(e._task.rubric)}</span></p><a-exercise ref="${e.id}"${e.type === 'custom' ? ' data-free' : ''}></a-exercise></div>`;
+  const drill = practice.filter((e) => e._task.kit !== 'write' && e._task.kit !== 'dinle').map(task).join('\n');
+  const listen = practice.filter((e) => e._task.kit === 'dinle').map(task).join('\n');
+  const write = practice.filter((e) => e._task.kit === 'write').map(task).join('\n');
   const checkId = exList.find((e) => e.kind === 'check').id;
   const next = many && L.n < D.lessons.length
     ? `\n      <a class="lx-next" href="lesson-${L.n + 1}.html">Часть ${L.n + 1} →</a>`
@@ -179,6 +193,13 @@ function page(D, L, scene, exList) {
       ? `\n      <a class="lx-next" href="../${D._next.id}/" data-next-day="${D._next.id}">День ${D._next.day}: ${esc(D._next.title_ru)} →</a>`
       : '\n      ';
   const cast = [...new Set(L.chapters.flatMap((c) => c.blocks.filter((b) => b.b && b.b.who !== 'Sen').map((b) => b.b.who)))];
+  const vizCount = L.chapters.reduce((s, c) => s + c.blocks.filter((b) => b.viz).length, 0) + (L.after_story || []).length + (L.grammar?.viz || []).length + 4;
+  const op = L.opener || { skills: [L.can_do], grammar: [], words: [] };
+  const hedefLines = (L.hedef?.lines || L.goals.slice(0, 3)).map(goalLi).join('\n');
+  const head = (icon, tr, h2, hint = '') => `      <div class="lx-ph">
+        ${kicker(icon, tr)}
+        <h2>${h2}</h2>${hint ? `\n        <p class="lx-hint">${hint}</p>` : ''}
+      </div>`;
 
   return `<!doctype html>
 <html lang="ru">
@@ -224,53 +245,67 @@ function page(D, L, scene, exList) {
       <p class="lx-hero__intro st-hook">${rich(L.hook)}</p>
       <p class="st-cast"><span>В истории:</span> ${cast.map((c) => `<b lang="tr">${esc(c)}</b>`).join(', ')}</p>
       <ul class="lx-stats" data-ui>
-        <li><b>${L.minutes}</b><span>${plural(L.minutes, ['минута', 'минуты', 'минут'])}</span></li><li><b>${L.chapters.length}</b><span>${plural(L.chapters.length, ['глава', 'главы', 'глав'])}</span></li><li><b>${choices}</b><span>${plural(choices, ['выбор', 'выбора', 'выборов'])}</span></li><li><b>${tasks}</b><span>${plural(tasks, ['задание', 'задания', 'заданий'])}</span></li>
+        <li><b>${L.minutes}</b><span>${plural(L.minutes, ['минута', 'минуты', 'минут'])}</span></li><li><b>${L.chapters.length}</b><span>${plural(L.chapters.length, ['глава', 'главы', 'глав'])}</span></li><li><b>${vizCount}</b><span>${plural(vizCount, ['схема', 'схемы', 'схем'])}</span></li><li><b>${practice.length}</b><span>${plural(practice.length, ['задание', 'задания', 'заданий'])}</span></li>
       </ul>
   </section>
 
   <nav class="st-toc" data-scrollbar aria-label="Разделы урока">
     <ol class="st-toc__l">
       ${toc}
-      <li><a href="#p-ozet" data-toc="p-ozet">Итог</a></li><li><a href="#p-yasiz" data-toc="p-yasiz">А у тебя?</a></li><li><a href="#p-practice" data-toc="p-practice">Практика</a></li><li><a href="#p-check" data-toc="p-check">Тест</a></li>
     </ol>
     <span class="st-toc__bar" aria-hidden="true"></span>
   </nav>
 
+  ${sec('acilis', words(op.skills.join(' ') + op.grammar.join(' ') + op.words.join(' ')), ' id="p-acilis" class="st-sec">')}
+${head(IC.k_zet, 'Ünite açılışı', 'Что будет сегодня', 'Как в начале юнита учебника: умения, грамматика и слова дня.')}
+${opener(op)}
+      <div class="vz vz-hedef">
+        <p class="vz__h"><span lang="tr">Hedef dil</span> <span>что ты сегодня скажешь</span></p>
+        <p class="vz-hedef__forms">${op.grammar.map((g) => `<span class="vz-chip" lang="tr">${esc(g)}</span>`).join('')}</p>
+        <ol class="dy-goal">
+${hedefLines}
+        </ol>
+      </div>
+  </section>
+
+  ${sec('hazirlik', 20, ' id="p-hazirlik" class="st-sec">')}
+${head(IC.k_yasiz, 'Hazırlık çalışması', 'Подготовка', 'До текста: вспомни знакомое и посмотри, где пройдёт день.')}
+${prep(L.prep)}${route(L.chapters)}  </section>
+
   ${sec('hikaye', words(strip(storyText)), ' id="p-hikaye" class="st-sec">')}
       <div class="lx-ph st-head">
-        ${kicker(IC.k_hikye, 'Hikâye')}
+        ${kicker(IC.k_hikye, 'Okuma')}
         <h2>История дня</h2>
         <p class="lx-hint">Нажимай на турецкие слова: услышишь их и увидишь перевод. Когда герою нужно ответить, выбирай сам.</p>
       </div>
-${prep(L.prep)}${route(L.chapters)}      <div class="st-chs">
+      <div class="st-chs">
 ${L.chapters.map(chapter).join('\n')}
       </div>
       <p class="st-end">${rich(L.end)}</p>
 ${(L.after_story || []).map((v) => '      ' + viz(v, IC)).join('\n')}
   </section>
 
-  ${sec('ozet', words(L.goals.flat().join(' ') + ' ' + L.words.flat().join(' ')), ' id="p-ozet" class="st-sec">')}
-      <div class="lx-ph">
-        ${kicker(IC.k_zet, 'Özet')}
-        <h2>Что ты унёс из истории</h2>
-        <p class="lx-hint">${esc(L.can_do)}</p>
-        <div class="dy-selfcheck" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-hide-ru aria-pressed="false">Скрыть перевод</button><span>Проверь себя: вспомни перевод, потом нажми на строку.</span></div>
-      </div>
-      <ol class="dy-goal">
-${goals}
-      </ol>
-      <h3 class="st-sub">Слова истории</h3>
+  ${sec('dilbilgisi', 40, ' id="p-dilbilgisi" class="st-sec">')}
+${head(IC.k_altrma, 'Dil bilgisi', esc(L.grammar?.title || 'Грамматика дня'), esc(L.grammar?.hint || 'Разбираем форму по шагам: смотри, как меняется фраза.'))}
+${(L.grammar?.viz || []).map((v) => '      ' + viz(v, IC)).join('\n')}
+  </section>
+
+  ${sec('sozluk', words(L.words.flat().join(' ')), ' id="p-sozluk" class="st-sec">')}
+${head(IC.k_zet, 'Söz varlığı', 'Слова дня', 'Чем крупнее слово, тем чаще оно звучало в истории. Нажми, чтобы услышать.')}
+${cloud(L.words, trText)}
+      <div class="dy-selfcheck" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-hide-ru aria-pressed="false">Скрыть перевод</button><span>Проверь себя: вспомни перевод, потом нажми на строку.</span></div>
       <ul class="st-words">
 ${wordsHtml}
       </ul>
   </section>
 
+  ${sec('practice', 12, ' id="p-practice" class="st-sec">')}
+${head(IC.k_altrma, 'Alıştırmalar', 'Закрепим', 'Задания пронумерованы подряд через весь урок, как в учебнике.')}
+${drill}
+  </section>
+
   ${sec('yasiz', words(L.yasiz.tr + ' ' + L.yasiz.ru + ' ' + L.yasiz.model), ' id="p-yasiz" class="st-sec">')}
-      <div class="lx-ph">
-        ${kicker(IC.k_yasiz, 'Ya siz?')}
-        <h2>А у тебя?</h2>
-        <p class="lx-hint">Теперь история про тебя. Ответь вслух, потом сравни с образцом.</p>
-      </div>
+${head(IC.k_yasiz, 'Ya siz?', 'А у тебя?', 'Теперь история про тебя. Ответь вслух, потом сравни с образцом.')}
       <div class="dy-you">
         <p class="dy-you__q" lang="tr" data-say="${esc(L.yasiz.tr)}">${esc(L.yasiz.tr)}</p>
         <p>${esc(L.yasiz.ru)}</p>
@@ -279,13 +314,28 @@ ${wordsHtml}
       </div>
 ${culture(L.culture)}  </section>
 
-  ${sec('practice', 12, ' id="p-practice" class="st-sec">')}
-      <div class="lx-ph">
-        ${kicker(IC.k_altrma, 'Alıştırma')}
-        <h2>Закрепим</h2>
-        <p class="lx-hint">Те же слова и формы, что были в истории, теперь сам.</p>
-      </div>
-${tasksHtml}
+  ${sec('dinleme', 12, ' id="p-dinleme" class="st-sec">')}
+${head(IC.k_hikye, 'Dinleme', 'Аудирование', 'Слушай фразу и выбирай перевод. Можно переслушать.')}
+${listen}
+  </section>
+
+  ${sec('yazma', 12, ' id="p-yazma" class="st-sec">')}
+${head(IC.k_altrma, 'Yazma', 'Письмо', 'Свой короткий текст по образцу дня.')}
+${write}
+  </section>
+
+  ${sec('konusma', 30, ' id="p-konusma" class="st-sec">')}
+${head(IC.k_yasiz, 'Konuşma', 'Говорение', 'Закрой текст и проговори сцену вслух, как в учебнике: <span lang="tr">Kitabı kapatalım</span>.')}
+${L.konusma ? speak(L.konusma, IC) : ''}
+  </section>
+
+  ${sec('ozet', words(L.goals.flat().join(' ')), ' id="p-ozet" class="st-sec">')}
+${head(IC.k_zet, 'Özet', 'Что ты унёс из истории', esc(L.can_do))}
+      <div class="dy-selfcheck" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-hide-ru aria-pressed="false">Скрыть перевод</button><span>Вспомни перевод, потом нажми на строку.</span></div>
+      <ol class="dy-goal">
+${goals}
+      </ol>
+${(L.after_ozet || []).map((v) => '      ' + viz(v, IC)).join('\n')}
   </section>
 
   ${sec('check', 13, ' id="p-check" class="st-sec">')}
@@ -325,7 +375,7 @@ ${readFileSync(join(ROOT, 'tools/viz.js'), 'utf8').trim()}
 
 function design(D) {
   const tpl = readFileSync(join(ROOT, 'tools/design.css'), 'utf8');
-  return tpl.replaceAll('__NAME__', D.design.name).replaceAll('__ACCENT__', D.design.accent) + readFileSync(join(ROOT, 'tools/viz.css'), 'utf8');
+  return tpl.replaceAll('__NAME__', D.design.name).replaceAll('__ACCENT__', D.design.accent) + readFileSync(join(ROOT, 'tools/viz.css'), 'utf8') + readFileSync(join(ROOT, 'tools/viz-book.css'), 'utf8');
 }
 
 function buildDay(id) {

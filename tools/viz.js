@@ -102,4 +102,74 @@
       $$(fig, '[data-a]').forEach((el) => { el.textContent = el.dataset[m]; });
     }));
   });
+
+  // пошаговая диаграмма: «Дальше»/«Назад» и клик по номеру шага
+  $$(document, '[data-viz="steps"]').forEach((fig) => {
+    const items = $$(fig, '.vz-steps__i'), pos = $(fig, '.vz-steps__pos');
+    const prev = $(fig, '[data-step="-1"]'), next = $(fig, '[data-step="1"]');
+    let cur = 0;
+    const go = (i, say = true) => {
+      cur = Math.max(0, Math.min(items.length - 1, i));
+      items.forEach((li, k) => {
+        if (k === cur) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+        li.classList.toggle('is-past', k < cur);
+      });
+      pos.textContent = `Шаг ${cur + 1} из ${items.length}`;
+      prev.disabled = cur === 0;
+      next.disabled = cur === items.length - 1;
+      if (say) speak($(items[cur], '.vz-steps__tr').dataset.say);
+    };
+    prev.addEventListener('click', () => go(cur - 1));
+    next.addEventListener('click', () => go(cur + 1));
+    items.forEach((li, k) => $(li, '.vz-steps__n').addEventListener('click', () => go(k)));
+    fig.classList.add('is-js');
+    go(0, false);
+  });
+
+  // дерево выбора: вопрос → вариант → … → готовая фраза
+  $$(document, '[data-viz="flow"]').forEach((fig) => {
+    const nodes = JSON.parse(fig.dataset.nodes), icon = fig.dataset.sayIcon;
+    const path = $(fig, '.vz-flow__path'), stage = $(fig, '.vz-flow__stage');
+    const trail = [];
+    const show = (id, say) => {
+      const n = nodes[id];
+      path.innerHTML = trail.map((t, i) => `<li style="--i:${i}"><span>${esc(t.q)}</span><b>${esc(t.a)}</b></li>`).join('');
+      if (n.tr) {
+        stage.innerHTML = `<div class="vz-flow__res"><p class="vz-flow__k">Твоя фраза</p><p class="vz-flow__tr"><b lang="tr" data-say="${esc(n.tr)}">${esc(n.tr)}</b><button type="button" class="lx-say vz-say" data-say="${esc(n.tr)}" aria-label="Послушать"><span class="lx-say__ico">${icon}</span></button></p><p>${esc(n.ru)}</p><p class="vz-flow__note">${esc(n.note || '')}</p><button type="button" class="lx-btn lx-btn--ghost vz-flow__again">Пройти заново</button></div>`;
+        $(stage, '.vz-flow__again').addEventListener('click', () => { trail.length = 0; show(fig.dataset.start); });
+        if (say) speak(n.tr);
+      } else {
+        stage.innerHTML = `<p class="vz-flow__q">${esc(n.q)}</p><div class="vz-flow__opts">${n.opts.map((o) => `<button type="button" class="vz-flow__o" data-to="${esc(o.to)}">${esc(o.label)}</button>`).join('')}</div>`;
+        $$(stage, '.vz-flow__o').forEach((b) => b.addEventListener('click', () => { trail.push({ q: n.q, a: b.textContent }); show(b.dataset.to, true); }));
+      }
+    };
+    fig.classList.add('is-js');
+    show(fig.dataset.start, false);
+  });
+
+  // карточка говорения: таймер-кольцо и образец диалога
+  $$(document, '[data-viz="speak"]').forEach((fig) => {
+    const total = Number(fig.dataset.sec);
+    const fg = $(fig, '.vz-speak__fg'), num = $(fig, '.vz-speak__ring b'), st = $(fig, '.vz-speak__st'), go = $(fig, '.vz-speak__go');
+    let t = null;
+    const label = (w) => `${w}: ${total} секунд`;
+    go.addEventListener('click', () => {
+      if (t) { clearInterval(t); t = null; go.textContent = label('Начать'); st.textContent = 'Остановлено. Можно начать ещё раз.'; return; }
+      let left = total;
+      go.textContent = 'Стоп';
+      st.textContent = 'Говори! Иди по шагам карточки.';
+      const tick = () => { num.textContent = left; fg.setAttribute('stroke-dasharray', `${(left / total) * 100} 100`); };
+      tick();
+      t = setInterval(() => {
+        left -= 1; tick();
+        if (left <= 0) { clearInterval(t); t = null; go.textContent = label('Ещё раз'); st.textContent = 'Время! Сравни себя с образцом ниже.'; }
+      }, 1000);
+    });
+    const show = $(fig, '.vz-speak__show'), model = $(fig, '.vz-speak__model');
+    show.addEventListener('click', () => {
+      model.hidden = !model.hidden;
+      show.setAttribute('aria-expanded', String(!model.hidden));
+      show.textContent = model.hidden ? 'Показать образец диалога' : 'Скрыть образец';
+    });
+  });
 })();
