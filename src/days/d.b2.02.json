@@ -1,0 +1,129 @@
+{
+  "id": "d.b2.02",
+  "day": 2,
+  "title_ru": "Прибытие: первые часы в Чанкае",
+  "title_tr": "Varış: Çankaya'da ilk saatler",
+  "place_ru": "Чанкая",
+  "place_tr": "Çankaya",
+  "can_do": "Я могу быстро наладить быт в новом городе готовыми фразами.",
+  "design": { "name": "b2-cankaya", "accent": "#2f5d73" },
+  "lessons": [
+    {
+      "minutes": 7,
+      "hook": "Квартира тёплая, ключи на месте, но в холодильнике пусто, пить нечего, а телефон без интернета. Шесть мелких дел, и всё в новом районе.",
+      "can_do": "Я могу решить бытовые дела первого дня: вода, связь, продукты, аптека и техника в квартире.",
+      "chapters": [
+        {
+          "time": "09:30 · Mutfak",
+          "title": "Вода приезжает в бутыли",
+          "blocks": [
+            { "p": "Ты открываешь кран, чтобы поставить чайник, и Хасан-эфенди, который как раз принёс газеты, качает головой." },
+            { "b": { "who": "Kapıcı Hasan", "ava": "Ha", "tr": "Musluk suyunu çaya koyma. Sucuyu ara, damacana getirsin.", "ru": "Воду из-под крана в чай не лей. Позвони водовозу, пусть привезёт бутыль." } },
+            { "quirk": "[[damacana|бутыль на 19 литров]] в Анкаре стоит почти в каждой кухне. Водопроводную воду официально можно пить, но большинство семей всё равно заказывает бутыли у [[sucu|продавец питьевой воды]] из соседнего магазина." },
+            { "b": { "who": "Sen", "tr": "Merhaba, bir damacana su istiyorum. Adres Kavaklıdere, Bestekar Sokak, daire yedi.", "ru": "Здравствуйте, мне одну бутыль воды. Адрес: Каваклыдере, улица Бестекяр, квартира семь." } },
+            { "b": { "who": "Sucu", "tr": "Yarım saate kapıdayım. Boş damacananız var mı, yoksa depozito alacağım?", "ru": "Через полчаса буду у двери. Пустая бутыль у вас есть, или возьму залог?" } },
+            { "note": { "h": "«через полчаса» без предлога", "text": "[[yarım saate kapıdayım|через полчаса буду у двери]]: срок в дательном падеже отвечает на вопрос «к какому моменту». А *kapıdayım* — «я у двери» одним словом: местный падеж плюс «я». Русское будущее турок здесь не ставит, говорит в настоящем.", "ex": [["On dakikaya oradayım.", "Через десять минут буду там."], ["Yarım saate hazır olur.", "Будет готово через полчаса."]] } }
+          ]
+        },
+        {
+          "time": "10:30 · Tunalı Hilmi Caddesi",
+          "title": "Интернет по паспорту",
+          "blocks": [
+            { "p": "На улице Туналы Хильми через каждые сто метров салон связи. Ты заходишь в первый, где нет очереди." },
+            { "b": { "who": "Sen", "tr": "Kısa süreliğine buradayım. Turistler için internet paketi var mı?", "ru": "Я здесь ненадолго. Есть интернет-пакет для туристов?" } },
+            { "b": { "who": "Satıcı", "tr": "Var. Ama hattı pasaportunuzla kaydetmemiz gerekiyor.", "ru": "Есть. Но нам нужно зарегистрировать номер на ваш паспорт." } },
+            { "p": "Паспорт у тебя, тариф выбран. Осталось понять главное: на сколько хватит пакета." },
+            { "choice": {
+                "q": "Как спросить, сколько действует пакет?",
+                "opts": [
+                  { "tr": "Paket ne kadar süre geçerli?", "ru": "Сколько действует пакет?", "ok": true, "then": "«Otuz gün, yirmi gigabayt». Тридцать дней, двадцать гигабайт. *Geçerli* — «действующий»: так говорят о пакетах, билетах и визах." },
+                  { "tr": "Paket ne kadar geçti?", "ru": "Сколько прошёл пакет?", "ok": false, "then": "Продавец не понимает: пакет никуда не ходил. *Geçmek* — «проходить», а срок действия — *geçerli olmak*: *ne kadar süre geçerli?*" }
+                ]
+            } },
+            { "quirk": "Телефон, привезённый из-за границы, работает с турецкой симкой ограниченное время, примерно четыре месяца. Потом его нужно регистрировать и платить сбор. Для недели в Анкаре это неважно, но в салоне тебе это обязательно расскажут." }
+          ]
+        },
+        {
+          "time": "12:00 · Bakkal ve eczane",
+          "title": "Хлеб, сыр и горло",
+          "blocks": [
+            { "p": "Вчерашний анкарский мороз сделал своё дело: першит горло. По пути домой ты заходишь в бакал за хлебом и сыром, а потом в аптеку на углу." },
+            { "b": { "who": "Sen", "tr": "Boğazım ağrıyor. Reçetesiz bir şey verebilir misiniz?", "ru": "У меня болит горло. Можете дать что-нибудь без рецепта?" } },
+            { "b": { "who": "Eczacı", "tr": "Bu pastilleri günde üç kez emin. İki gün içinde geçmezse doktora görünün.", "ru": "Рассасывайте эти пастилки три раза в день. Если за два дня не пройдёт, покажитесь врачу." } },
+            { "note": { "h": "«без» одним суффиксом", "text": "[[reçetesiz|без рецепта]]: *-siz* значит «без». Пара к нему — *-li*, «с»: *reçeteli ilaç*, лекарство по рецепту. Так же *şekersiz çay*, *sütlü kahve*.", "ex": [["Reçetesiz satılıyor mu?", "Это продаётся без рецепта?"], ["Bu ilaç reçeteli.", "Это лекарство по рецепту."]] } },
+            { "quirk": "Ночью и в воскресенье работает [[nöbetçi eczane|дежурная аптека]]. Список дежурных висит на двери каждой аптеки, даже закрытой: ищи листок с адресами." }
+          ]
+        },
+        {
+          "time": "18:00 · Ev",
+          "title": "Машинка и дорога на завтра",
+          "blocks": [
+            { "p": "Вечер. Вещи после автобуса пора стирать, но на стиральной машине двадцать программ. Ты звонишь Несрин-ханым." },
+            { "b": { "who": "Nesrin Hanım", "ava": "NH", "tr": "Hoş geldin! Her şey yolunda mı? Bir ihtiyacın olursa çekinme.", "ru": "С приездом! Всё в порядке? Если что-то нужно, не стесняйся." } },
+            { "choice": {
+                "q": "Как попросить её написать, какую программу выбрать?",
+                "opts": [
+                  { "tr": "Hangi programı seçmem gerektiğini yazabilir misiniz?", "ru": "Можете написать, какую программу мне выбрать?", "ok": true, "then": "«Tabii, hemen yazıyorum». Через минуту приходит фото с кружком на программе «Karışık 40°». Вопрос «что выбрать?» стал частью просьбы." },
+                  { "tr": "Hangi program beni seçer, yazar mısınız?", "ru": "Какая программа меня выберет, напишете?", "ok": false, "then": "Несрин-ханым смеётся: программы никого не выбирают. Выбираешь ты: *hangi programı seçmem gerektiğini*." }
+                ]
+            } },
+            { "b": { "who": "Sen", "tr": "Bir de yarın Kızılay'a nasıl giderim? Metro yakın mı?", "ru": "И ещё: как мне завтра доехать до Кызылая? Метро близко?" } },
+            { "b": { "who": "Nesrin Hanım", "ava": "NH", "tr": "En kolayı otobüs. Kuğulu Park durağından her beş dakikada bir geçiyor.", "ru": "Проще всего автобусом. С остановки у парка Кугулу ходит каждые пять минут." } },
+            { "note": { "h": "«каждые пять минут»", "text": "[[her beş dakikada bir|каждые пять минут]]: *her* + число + местный падеж + *bir*. Так говорят о расписании и о лекарствах.", "ex": [["Her beş dakikada bir otobüs var.", "Автобус каждые пять минут."], ["Her sekiz saatte bir alın.", "Принимайте каждые восемь часов."]] } }
+          ]
+        }
+      ],
+      "end": "К вечеру на кухне стоит бутыль воды, в телефоне интернет, в холодильнике хлеб и сыр, горло лечится, машинка стирает, а маршрут на завтра записан. Шесть дел за один день, и всё по-турецки.",
+      "goals": [
+        ["Bir damacana su istiyorum.", "Мне одну бутыль воды."],
+        ["Turistler için internet paketi var mı?", "Есть интернет-пакет для туристов?"],
+        ["Paket ne kadar süre geçerli?", "Сколько действует пакет?"],
+        ["Reçetesiz bir şey verebilir misiniz?", "Можете дать что-нибудь без рецепта?"],
+        ["Hangi programı seçmem gerektiğini yazabilir misiniz?", "Можете написать, какую программу мне выбрать?"],
+        ["Her beş dakikada bir geçiyor.", "Ходит каждые пять минут."]
+      ],
+      "words": [
+        ["damacana", "бутыль на 19 литров"],
+        ["sucu", "продавец питьевой воды"],
+        ["depozito", "залог"],
+        ["hat", "номер, линия связи"],
+        ["paket", "тарифный пакет"],
+        ["geçerli", "действующий"],
+        ["reçete", "рецепт"],
+        ["pastil", "пастилка"],
+        ["nöbetçi eczane", "дежурная аптека"],
+        ["çamaşır makinesi", "стиральная машина"],
+        ["durak", "остановка"],
+        ["çekinmek", "стесняться"]
+      ],
+      "yasiz": {
+        "tr": "Sen yeni bir evde ilk gün neyi mutlaka hallederdin?",
+        "ru": "Что ты обязательно уладил бы в первый день в новой квартире?",
+        "model": "İlk gün mutlaka internet ve su işini hallederdim, çünkü onlarsız çalışamıyorum."
+      },
+      "practice": [
+        {
+          "kit": "complete", "rubric": "Cümleleri tamamlayalım.", "type": "gap_fill", "difficulty": 2,
+          "instruction": "Закончи фразы из сегодняшних разговоров.",
+          "items": [
+            { "id": "1", "text": "Yarım ___ kapıdayım.", "answers": [["saate"]], "explanation": "Yarım saate kapıdayım." },
+            { "id": "2", "text": "Hattı pasaportunuzla kaydetmemiz ___.", "answers": [["gerekiyor"]], "explanation": "Hattı pasaportunuzla kaydetmemiz gerekiyor." },
+            { "id": "3", "text": "Paket ne kadar süre ___?", "answers": [["geçerli"]], "explanation": "Paket ne kadar süre geçerli?" },
+            { "id": "4", "text": "___ bir şey verebilir misiniz?", "answers": [["Reçetesiz"]], "explanation": "Reçetesiz bir şey verebilir misiniz?" },
+            { "id": "5", "text": "Otobüs her beş dakikada ___ geçiyor.", "answers": [["bir"]], "explanation": "Otobüs her beş dakikada bir geçiyor." }
+          ]
+        },
+        {
+          "kit": "write", "rubric": "Yazalım.", "type": "custom", "difficulty": 2,
+          "instruction": "Составь список дел на первую неделю в Анкаре и напиши его по-турецки: 4–5 пунктов, у каждого одно короткое предложение.",
+          "items": [
+            { "id": "1", "task": "Составь список дел на первую неделю в Анкаре и напиши его по-турецки: 4–5 пунктов, у каждого одно короткое предложение.",
+              "model": "1. Sucudan iki damacana su sipariş edeceğim. 2. Telefonuma internet paketi yükleteceğim. 3. Bakkaldan ekmek ve peynir alacağım. 4. Eczaneden boğaz pastili alacağım. 5. Kızılay'a giden otobüsün durağını bulacağım.",
+              "answer": "1. Sucudan iki damacana su sipariş edeceğim. 2. Telefonuma internet paketi yükleteceğim. 3. Bakkaldan ekmek ve peynir alacağım. 4. Eczaneden boğaz pastili alacağım. 5. Kızılay'a giden otobüsün durağını bulacağım.",
+              "explanation": "Можно так: 1. Sucudan iki damacana su sipariş edeceğim. 2. Telefonuma internet paketi yükleteceğim. 3. Bakkaldan ekmek ve peynir alacağım. 4. Eczaneden boğaz pastili alacağım. 5. Kızılay'a giden otobüsün durağını bulacağım." }
+          ]
+        }
+      ]
+    }
+  ]
+}
