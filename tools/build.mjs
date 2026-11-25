@@ -10,6 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { viz, route } from './viz.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const IC = JSON.parse(readFileSync(join(ROOT, 'tools/icons.json'), 'utf8'));
@@ -66,6 +67,7 @@ function chapter(ch, i) {
     if (b.note) return note(b.note);
     if (b.quirk) return quirk(b.quirk);
     if (b.choice) return choice(b.choice, `ch${i + 1}-${k + 1}`);
+    if (b.viz) return viz(b.viz, IC);
     throw new Error('неизвестный блок в главе ' + (i + 1));
   }).join('\n        ');
   return `      <article class="st-ch" id="ch-${i + 1}" style="--i:${i}">
@@ -240,10 +242,11 @@ function page(D, L, scene, exList) {
         <h2>История дня</h2>
         <p class="lx-hint">Нажимай на турецкие слова: услышишь их и увидишь перевод. Когда герою нужно ответить, выбирай сам.</p>
       </div>
-${prep(L.prep)}      <div class="st-chs">
+${prep(L.prep)}${route(L.chapters)}      <div class="st-chs">
 ${L.chapters.map(chapter).join('\n')}
       </div>
       <p class="st-end">${rich(L.end)}</p>
+${(L.after_story || []).map((v) => '      ' + viz(v, IC)).join('\n')}
   </section>
 
   ${sec('ozet', words(L.goals.flat().join(' ') + ' ' + L.words.flat().join(' ')), ' id="p-ozet" class="st-sec">')}
@@ -312,6 +315,9 @@ ${tasksHtml}
 <script src="../kit/v1/day.js" defer></script>
 <script src="../kit/v1/story.js" defer></script>
 ${PAGE_JS}
+<script>
+${readFileSync(join(ROOT, 'tools/viz.js'), 'utf8').trim()}
+</script>
 </body>
 </html>
 `;
@@ -319,7 +325,7 @@ ${PAGE_JS}
 
 function design(D) {
   const tpl = readFileSync(join(ROOT, 'tools/design.css'), 'utf8');
-  return tpl.replaceAll('__NAME__', D.design.name).replaceAll('__ACCENT__', D.design.accent);
+  return tpl.replaceAll('__NAME__', D.design.name).replaceAll('__ACCENT__', D.design.accent) + readFileSync(join(ROOT, 'tools/viz.css'), 'utf8');
 }
 
 function buildDay(id) {
