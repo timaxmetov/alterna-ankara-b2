@@ -109,6 +109,47 @@ function check(L, id, r) {
   };
 }
 
+/** Hazırlık из модели урока дорожной карты: вопрос до истории и знакомые слова, которые можно послушать. */
+const prep = (p) => p ? `      <div class="dy-prep">
+        <p class="dy-prep__h"><span lang="tr">Hazırlık</span> · перед историей</p>
+        <p>${rich(p.q)}</p>
+        <p class="dy-prep__w" data-ui>${p.chips.map((w) => `<button type="button" class="lx-chip lx-chip--tr dy-prep__chip" lang="tr" data-say="${esc(w)}">${esc(w)}</button>`).join('')}</p>
+      </div>\n` : '';
+
+/** Культурный слой дорожной карты: «как здесь принято», одна формула или правило на день. */
+const culture = (c) => c ? `      <aside class="dy-culture"><p class="dy-culture__h"><span class="dy-culture__ico">${IC.culture}</span><span>Как здесь принято</span></p><p>${rich(c)}</p></aside>\n` : '';
+
+/** Поведение страницы сверх kit: анимация сцены (как design.js у дней A1) и самопроверка «скрыть перевод». */
+const PAGE_JS = `<script>
+(() => {
+  const s = document.querySelector('[data-section="ozet"]');
+  const t = s && s.querySelector('[data-hide-ru]');
+  if (t) {
+    t.addEventListener('click', () => {
+      const on = s.classList.toggle('is-hide-ru');
+      t.setAttribute('aria-pressed', on);
+      t.textContent = on ? 'Показать перевод' : 'Скрыть перевод';
+      s.querySelectorAll('.is-peek').forEach((x) => x.classList.remove('is-peek'));
+    });
+    s.addEventListener('click', (e) => {
+      const row = e.target.closest('.dy-goal__w, .st-words li');
+      if (row && s.classList.contains('is-hide-ru') && !e.target.closest('button')) row.classList.toggle('is-peek');
+    }, true);
+  }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !window.gsap) return;
+  const q = (c) => document.querySelectorAll('.lx-scene .' + c);
+  gsap.from(q('an-drive'), { x: -380, duration: 2.2, ease: 'power3.out', delay: 0.2 });
+  gsap.from(q('an-sun'), { y: 40, opacity: 0, duration: 1.6, ease: 'power2.out' });
+  gsap.from(q('an-pop'), { y: 18, opacity: 0, duration: 0.7, ease: 'back.out(2)', stagger: 0.15, delay: 1.2 });
+  gsap.to(q('an-bob'), { y: -4, duration: 1.4, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 0.4 });
+  gsap.to(q('an-drift'), { x: 24, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+})();
+</script>`;
+
+/** Иконка вкладки: буква A на цвете дня. */
+const favicon = (accent) => 'data:image/svg+xml,' + encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${accent}"/><path d="M20 48 32 14l12 34M24.5 36h15" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+
 const sec = (key, words, extra = '') => `<section data-section="${key}" data-words="${words}"${extra}`;
 const kicker = (icon, tr) => `<p class="lx-kicker"><span class="lx-kicker__ico">${icon}</span><span lang="tr">${tr}</span></p>`;
 
@@ -130,7 +171,11 @@ function page(D, L, scene, exList) {
     return `      <div class="dy-task" data-kit="${p.kit}"><p class="dy-rubric" lang="tr">${esc(p.rubric)}</p><a-exercise ref="${e.id}"${e.type === 'custom' ? ' data-free' : ''}></a-exercise></div>`;
   }).join('\n');
   const checkId = exList.find((e) => e.kind === 'check').id;
-  const next = many && L.n < D.lessons.length ? `\n      <a class="lx-next" href="lesson-${L.n + 1}.html">Часть ${L.n + 1} →</a>` : '\n      ';
+  const next = many && L.n < D.lessons.length
+    ? `\n      <a class="lx-next" href="lesson-${L.n + 1}.html">Часть ${L.n + 1} →</a>`
+    : D._next
+      ? `\n      <a class="lx-next" href="../${D._next.id}/" data-next-day="${D._next.id}">День ${D._next.day}: ${esc(D._next.title_ru)} →</a>`
+      : '\n      ';
   const cast = [...new Set(L.chapters.flatMap((c) => c.blocks.filter((b) => b.b && b.b.who !== 'Sen').map((b) => b.b.who)))];
 
   return `<!doctype html>
@@ -144,6 +189,13 @@ function page(D, L, scene, exList) {
 <meta name="alterna:lesson" content="${L.n}">
 <meta name="alterna:kind" content="day">
 <title>День ${D.day}. ${esc(D.title_ru)}${part}</title>
+<meta name="description" content="Alterna · ${CITY.level} · ${CITY.ru}, день ${D.day}. ${esc(strip(L.hook))}">
+<meta name="theme-color" content="${D.design.accent}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="День ${D.day}. ${esc(D.title_ru)} · Alterna ${CITY.level}">
+<meta property="og:description" content="${esc(D.can_do)}">
+<meta property="og:image" content="media/og.png">
+<link rel="icon" href="${favicon(D.design.accent)}">
 <link rel="stylesheet" href="../kit/v1/kit.css">
 <link rel="stylesheet" href="../kit/v1/lexicon.css">
 <link rel="stylesheet" href="../kit/v1/day.css">
@@ -153,6 +205,7 @@ function page(D, L, scene, exList) {
 </head>
 <body class="lx dy st" data-city="${CITY.slug}" data-lessons="${D.lessons.length}" data-design="${D.design.name}">
 <!-- Собрано tools/build.mjs из src/days/${D.id}.json. Руками не править. -->
+<a class="dy-skip" href="#p-hikaye">К истории дня</a>
 <header class="lx-app">
   <span class="lx-app__logo"><span class="lx-app__ico">${IC.map}</span></span>
   <div class="lx-app__t"><b>Alterna · ${CITY.level} · день ${D.day}</b><small>${esc(D.place_ru)} · <span lang="tr">${esc(D.place_tr)}</span></small></div>
@@ -187,7 +240,7 @@ function page(D, L, scene, exList) {
         <h2>История дня</h2>
         <p class="lx-hint">Нажимай на турецкие слова: услышишь их и увидишь перевод. Когда герою нужно ответить, выбирай сам.</p>
       </div>
-      <div class="st-chs">
+${prep(L.prep)}      <div class="st-chs">
 ${L.chapters.map(chapter).join('\n')}
       </div>
       <p class="st-end">${rich(L.end)}</p>
@@ -198,6 +251,7 @@ ${L.chapters.map(chapter).join('\n')}
         ${kicker(IC.k_zet, 'Özet')}
         <h2>Что ты унёс из истории</h2>
         <p class="lx-hint">${esc(L.can_do)}</p>
+        <div class="dy-selfcheck" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-hide-ru aria-pressed="false">Скрыть перевод</button><span>Проверь себя: вспомни перевод, потом нажми на строку.</span></div>
       </div>
       <ol class="dy-goal">
 ${goals}
@@ -220,7 +274,7 @@ ${wordsHtml}
         <button type="button" class="lx-btn lx-btn--ghost dy-you__btn" data-reveal aria-expanded="false">Показать образец</button>
         <p class="dy-you__model" lang="tr" data-say="${esc(L.yasiz.model)}" hidden>${esc(L.yasiz.model)}</p>
       </div>
-  </section>
+${culture(L.culture)}  </section>
 
   ${sec('practice', 12, ' id="p-practice" class="st-sec">')}
       <div class="lx-ph">
@@ -257,6 +311,7 @@ ${tasksHtml}
 <script src="../kit/v1/tracker.js" defer></script>
 <script src="../kit/v1/day.js" defer></script>
 <script src="../kit/v1/story.js" defer></script>
+${PAGE_JS}
 </body>
 </html>
 `;
@@ -271,6 +326,9 @@ function buildDay(id) {
   const D = JSON.parse(readFileSync(join(ROOT, 'src/days', id + '.json'), 'utf8'));
   const scene = readFileSync(join(ROOT, 'src/scenes', D.design.name + '.svg'), 'utf8').trim();
   const r = rng([...id].reduce((s, c) => s + c.charCodeAt(0), 0));
+  const plan = JSON.parse(readFileSync(join(ROOT, 'src/plan.json'), 'utf8'));
+  const nx = plan[plan.findIndex((p) => p.id === id) + 1];
+  if (nx && existsSync(join(ROOT, 'src/days', nx.id + '.json'))) D._next = nx;
   const out = join(ROOT, id);
   mkdirSync(join(out, 'media'), { recursive: true });
 

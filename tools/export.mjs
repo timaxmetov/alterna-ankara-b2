@@ -9,9 +9,10 @@
 //   README.md  — откуда сайт и как его перенести.
 // Имя папки = имя репозитория на GitHub.
 
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const OUT_BASE = dirname(ROOT);
@@ -22,12 +23,36 @@ export const siteName = (id) => {
   return { name: `alterna-b2-${nn}-${D.design.name.replace(/^b2-/, '')}`, D };
 };
 
+const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+
+/** Картинка для превью ссылки (og:image) 1200×630 из сцены дня. */
+function ogImage(media) {
+  const tmp = join(media, '_og.html');
+  writeFileSync(tmp, `<!doctype html><style>html,body{margin:0;width:1200px;height:630px;overflow:hidden}svg{display:block;width:1200px;height:630px}</style>${readFileSync(join(media, 'scene.html'), 'utf8')}`);
+  execFileSync(CHROME, ['--headless=new', '--disable-gpu', '--hide-scrollbars', '--window-size=1200,630',
+    `--screenshot=${join(media, 'og.png')}`, pathToFileURL(tmp).href], { stdio: 'ignore' });
+  rmSync(tmp);
+}
+
+/** В отдельном сайте ссылка «следующий день» ведёт на сайт следующего дня; в папке для платформы она относительная. */
+function linkNextDay(dir) {
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.html'))) {
+    const p = join(dir, f);
+    const h = readFileSync(p, 'utf8').replace(/href="\.\.\/(d\.b2\.\d+)\/" data-next-day="\1"/g, (m, nid) =>
+      existsSync(join(ROOT, 'src/days', nid + '.json')) ? `href="${SITE}${siteName(nid).name}/${nid}/" data-next-day="${nid}"` : m);
+    writeFileSync(p, h);
+  }
+}
+const SITE = 'https://timaxmetov.github.io/';
+
 for (const id of process.argv.slice(2)) {
   if (!existsSync(join(ROOT, id, 'index.html'))) throw new Error(`${id} не собран: сначала node tools/build.mjs ${id}`);
   const { name, D } = siteName(id);
   const out = join(OUT_BASE, name);
   mkdirSync(out, { recursive: true });
   cpSync(join(ROOT, id), join(out, id), { recursive: true });
+  ogImage(join(out, id, 'media'));
+  linkNextDay(join(out, id));
   cpSync(join(ROOT, 'kit'), join(out, 'kit'), { recursive: true });
   writeFileSync(join(out, '.nojekyll'), '');
   writeFileSync(join(out, 'index.html'), `<!doctype html>

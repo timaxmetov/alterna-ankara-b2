@@ -6,7 +6,10 @@
   "place_ru": "Автовокзал АШТИ",
   "place_tr": "AŞTİ",
   "can_do": "Я могу организовать прибытие и первое размещение готовыми фразами.",
-  "design": { "name": "b2-asti", "accent": "#8a3b2f" },
+  "design": {
+    "name": "b2-asti",
+    "accent": "#8a3b2f"
+  },
   "lessons": [
     {
       "minutes": 7,
@@ -17,89 +20,322 @@
           "time": "06:20 · AŞTİ, peron 31",
           "title": "Холод, который не обещали",
           "blocks": [
-            { "p": "Автобус встаёт у тридцать первого перрона. За окном ещё темно, на стекле иней. Стюард идёт по проходу и будит тех, кто не проснулся от тормозов." },
-            { "b": { "who": "Muavin", "tr": "Son durak AŞTİ. Unutulan eşya kalmasın, lütfen.", "ru": "Конечная, АШТИ. Пожалуйста, не забывайте вещи." } },
-            { "note": { "h": "объявление вместо просьбы", "text": "[[unutulan eşya|забытая вещь]]: глагол *unutmak* в пассиве и причастии, «вещь, которую забыли». А *kalmasın* — «пусть не останется». Так говорят объявления: никого не называют и никому не приказывают напрямую.", "ex": [["Unutulan eşya kalmasın.", "Не оставляйте вещи."], ["Bulunan eşyalar danışmaya teslim edilir.", "Найденные вещи сдают в справочную."]] } },
-            { "p": "Чемодан едет в багажном отсеке внизу. Ты выходишь на перрон, и в лицо бьёт ветер. В Анталье вчера было двадцать градусов." },
-            { "b": { "who": "Sen", "tr": "Bagajımı alt bölmeden alabilir miyim? Fişim burada.", "ru": "Можно забрать мой багаж снизу? Вот моя бирка." } },
-            { "b": { "who": "Muavin", "tr": "Tabii, hemen veriyorum. Ankara'ya hoş geldiniz, üşümeyin.", "ru": "Конечно, сейчас отдам. Добро пожаловать в Анкару, не замёрзните." } },
-            { "quirk": "У этого холода есть имя: [[ayaz|сухой мороз с ветром]]. «Ankara'nın ayazı» анкарцы произносят почти с гордостью. Зима здесь континентальная: днём солнце, а утром минус." }
+            {
+              "p": "Автобус встаёт у тридцать первого перрона. За окном ещё темно, на стекле иней. Стюард идёт по проходу и будит тех, кто не проснулся от тормозов."
+            },
+            {
+              "b": {
+                "who": "Muavin",
+                "tr": "Son durak AŞTİ. Unutulan eşya kalmasın, lütfen.",
+                "ru": "Конечная, АШТИ. Пожалуйста, не забывайте вещи."
+              }
+            },
+            {
+              "note": {
+                "h": "объявление вместо просьбы",
+                "text": "[[unutulan eşya|забытая вещь]]: глагол *unutmak* в пассиве и причастии, «вещь, которую забыли». А *kalmasın* — «пусть не останется». Так говорят объявления: никого не называют и никому не приказывают напрямую.",
+                "ex": [
+                  [
+                    "Unutulan eşya kalmasın.",
+                    "Не оставляйте вещи."
+                  ],
+                  [
+                    "Bulunan eşyalar danışmaya teslim edilir.",
+                    "Найденные вещи сдают в справочную."
+                  ]
+                ]
+              }
+            },
+            {
+              "p": "Чемодан едет в багажном отсеке внизу. Ты выходишь на перрон, и в лицо бьёт ветер. В Анталье вчера было двадцать градусов."
+            },
+            {
+              "b": {
+                "who": "Sen",
+                "tr": "Bagajımı alt bölmeden alabilir miyim? Fişim burada.",
+                "ru": "Можно забрать мой багаж снизу? Вот моя бирка."
+              }
+            },
+            {
+              "b": {
+                "who": "Muavin",
+                "tr": "Tabii, hemen veriyorum. Ankara'ya hoş geldiniz, üşümeyin.",
+                "ru": "Конечно, сейчас отдам. Добро пожаловать в Анкару, не замёрзните."
+              }
+            },
+            {
+              "quirk": "У этого холода есть имя: [[ayaz|сухой мороз с ветром]]. «Ankara'nın ayazı» анкарцы произносят почти с гордостью. Зима здесь континентальная: днём солнце, а утром минус."
+            }
           ]
         },
         {
           "time": "06:45 · Ankaray",
           "title": "Карта, без которой не пустят",
           "blocks": [
-            { "p": "Из вокзала прямо в подземку ведёт лёгкое метро Анкарай, до Кызылая без пересадок. Наличные турникет не принимает. Ты идёшь к окошку рядом с автоматами." },
-            { "b": { "who": "Sen", "tr": "Günaydın. Kızılay'a gitmek için hangi kartı almam gerekiyor?", "ru": "Доброе утро. Какую карту мне нужно купить, чтобы доехать до Кызылая?" } },
-            { "b": { "who": "Görevli", "tr": "AnkaraKart alıp içine para yüklemeniz lazım. Kartı buradan alabilirsiniz.", "ru": "Нужно купить AnkaraKart и положить на неё деньги. Карту можно купить здесь." } },
-            { "note": { "h": "«мне нужно» через существительное", "text": "[[almam gerekiyor|мне нужно купить]]: глагол становится существительным *alma*, к нему приходит *-m*, «моё». Дословно «моя покупка требуется». У кассира то же самое на «вы»: [[yüklemeniz lazım|вам нужно пополнить]].", "ex": [["Hangi kartı almam gerekiyor?", "Какую карту мне нужно купить?"], ["Önce kartı yüklemeniz lazım.", "Сначала вам нужно пополнить карту."]] } },
-            { "p": "Карта у тебя в руке, пустая. Ты протягиваешь купюру и хочешь, чтобы на карту положили сто лир." },
-            { "choice": {
+            {
+              "p": "Из вокзала прямо в подземку ведёт лёгкое метро Анкарай, до Кызылая без пересадок. Наличные турникет не принимает. Ты идёшь к окошку рядом с автоматами."
+            },
+            {
+              "b": {
+                "who": "Sen",
+                "tr": "Günaydın. Kızılay'a gitmek için hangi kartı almam gerekiyor?",
+                "ru": "Доброе утро. Какую карту мне нужно купить, чтобы доехать до Кызылая?"
+              }
+            },
+            {
+              "b": {
+                "who": "Görevli",
+                "tr": "AnkaraKart alıp içine para yüklemeniz lazım. Kartı buradan alabilirsiniz.",
+                "ru": "Нужно купить AnkaraKart и положить на неё деньги. Карту можно купить здесь."
+              }
+            },
+            {
+              "note": {
+                "h": "«мне нужно» через существительное",
+                "text": "[[almam gerekiyor|мне нужно купить]]: глагол становится существительным *alma*, к нему приходит *-m*, «моё». Дословно «моя покупка требуется». У кассира то же самое на «вы»: [[yüklemeniz lazım|вам нужно пополнить]].",
+                "ex": [
+                  [
+                    "Hangi kartı almam gerekiyor?",
+                    "Какую карту мне нужно купить?"
+                  ],
+                  [
+                    "Önce kartı yüklemeniz lazım.",
+                    "Сначала вам нужно пополнить карту."
+                  ]
+                ]
+              }
+            },
+            {
+              "p": "Карта у тебя в руке, пустая. Ты протягиваешь купюру и хочешь, чтобы на карту положили сто лир."
+            },
+            {
+              "choice": {
                 "q": "Как попросить положить на карту сто лир?",
                 "opts": [
-                  { "tr": "Kartıma yüz lira yükler misiniz?", "ru": "Положите на мою карту сто лир?", "ok": true, "then": "Кассир кивает, пищит терминал. «Yüklendi, iyi yolculuklar». Деньги идут *на карту*: дательный падеж, *kartıma*." },
-                  { "tr": "Kartımı yüz liraya yükler misiniz?", "ru": "Погрузите мою карту на сто лир?", "ok": false, "then": "Кассир поднимает бровь: грузить карту куда? *Kartımı* — «карту» как груз. Пополняют *karta*: *kartıma yüz lira yüklemek*." }
+                  {
+                    "tr": "Kartıma yüz lira yükler misiniz?",
+                    "ru": "Положите на мою карту сто лир?",
+                    "ok": true,
+                    "then": "Кассир кивает, пищит терминал. «Yüklendi, iyi yolculuklar». Деньги идут *на карту*: дательный падеж, *kartıma*."
+                  },
+                  {
+                    "tr": "Kartımı yüz liraya yükler misiniz?",
+                    "ru": "Погрузите мою карту на сто лир?",
+                    "ok": false,
+                    "then": "Кассир поднимает бровь: грузить карту куда? *Kartımı* — «карту» как груз. Пополняют *karta*: *kartıma yüz lira yüklemek*."
+                  }
                 ]
-            } }
+              }
+            }
           ]
         },
         {
           "time": "07:20 · Kızılay",
           "title": "Наверх, к бульвару",
           "blocks": [
-            { "p": "На Кызылае выходов больше десятка, и на каждом указатель с названием улицы. Ты выбираешь наугад и поднимаешься на площадь. Город уже проснулся: машины, студенты, лоток с симитами." },
-            { "b": { "who": "Sen", "tr": "Affedersiniz, Kavaklıdere'ye yürüyerek ne kadar sürer?", "ru": "Извините, сколько идти пешком до Каваклыдере?" } },
-            { "b": { "who": "Amca", "tr": "Yirmi beş dakika sürer. Atatürk Bulvarı'ndan dümdüz yukarı çıkın, Kuğulu Park'ı görünce sola dönün.", "ru": "Минут двадцать пять. Идите по бульвару Ататюрка прямо вверх, у парка Кугулу поверните налево." } },
-            { "note": { "h": "путь одним словом", "text": "[[yürüyerek|пешком]]: окончание *-(y)erek* показывает, *как* ты что-то делаешь. А [[görünce|как увидите]] отвечает на вопрос «когда». Оба знакомы с B1, просто в столице их говорят быстрее.", "ex": [["Yürüyerek yirmi dakika sürer.", "Пешком двадцать минут."], ["Parkı görünce sola dönün.", "Увидите парк — поворачивайте налево."]] } },
-            { "quirk": "В Анкаре симит толще и темнее, чем в Стамбуле: перед печью его щедро окунают в пекмез. Местные уверены, что *Ankara simidi* — единственный настоящий. Спорить в семь утра незачем, лучше купить." }
+            {
+              "p": "На Кызылае выходов больше десятка, и на каждом указатель с названием улицы. Ты выбираешь наугад и поднимаешься на площадь. Город уже проснулся: машины, студенты, лоток с симитами."
+            },
+            {
+              "b": {
+                "who": "Sen",
+                "tr": "Affedersiniz, Kavaklıdere'ye yürüyerek ne kadar sürer?",
+                "ru": "Извините, сколько идти пешком до Каваклыдере?"
+              }
+            },
+            {
+              "b": {
+                "who": "Amca",
+                "tr": "Yirmi beş dakika sürer. Atatürk Bulvarı'ndan dümdüz yukarı çıkın, Kuğulu Park'ı görünce sola dönün.",
+                "ru": "Минут двадцать пять. Идите по бульвару Ататюрка прямо вверх, у парка Кугулу поверните налево."
+              }
+            },
+            {
+              "note": {
+                "h": "путь одним словом",
+                "text": "[[yürüyerek|пешком]]: окончание *-(y)erek* показывает, *как* ты что-то делаешь. А [[görünce|как увидите]] отвечает на вопрос «когда». Оба знакомы с B1, просто в столице их говорят быстрее.",
+                "ex": [
+                  [
+                    "Yürüyerek yirmi dakika sürer.",
+                    "Пешком двадцать минут."
+                  ],
+                  [
+                    "Parkı görünce sola dönün.",
+                    "Увидите парк — поворачивайте налево."
+                  ]
+                ]
+              }
+            },
+            {
+              "quirk": "В Анкаре симит толще и темнее, чем в Стамбуле: перед печью его щедро окунают в пекмез. Местные уверены, что *Ankara simidi* — единственный настоящий. Спорить в семь утра незачем, лучше купить."
+            }
           ]
         },
         {
           "time": "08:00 · Kavaklıdere, apartman",
           "title": "Три вопроса кападжи",
           "blocks": [
-            { "p": "Дом на тихой улице за парком. Хозяйка, Несрин-ханым, уже на работе, но предупредила: ключи у [[kapıcı|консьерж дома]]. Он открывает дверь подвала с чайником в руке." },
-            { "b": { "who": "Kapıcı Hasan", "ava": "Ha", "tr": "Nesrin Hanım anahtarı bıraktı. Daire yedi, üçüncü kat.", "ru": "Несрин-ханым оставила ключ. Квартира семь, третий этаж." } },
-            { "b": { "who": "Sen", "tr": "Çok sağ olun. İnternet şifresini nereden öğrenebilirim?", "ru": "Большое спасибо. Где мне узнать пароль от интернета?" } },
-            { "b": { "who": "Kapıcı Hasan", "ava": "Ha", "tr": "Modemin altında yazıyor. Başka bir şey lazım mı?", "ru": "Написан снизу на модеме. Что-нибудь ещё нужно?" } },
-            { "p": "В квартире холодно, как на перроне. На стене висит газовый котёл с тремя ручками и ни одной понятной надписью." },
-            { "choice": {
+            {
+              "p": "Дом на тихой улице за парком. Хозяйка, Несрин-ханым, уже на работе, но предупредила: ключи у [[kapıcı|консьерж дома]]. Он открывает дверь подвала с чайником в руке."
+            },
+            {
+              "b": {
+                "who": "Kapıcı Hasan",
+                "ava": "Ha",
+                "tr": "Nesrin Hanım anahtarı bıraktı. Daire yedi, üçüncü kat.",
+                "ru": "Несрин-ханым оставила ключ. Квартира семь, третий этаж."
+              }
+            },
+            {
+              "b": {
+                "who": "Sen",
+                "tr": "Çok sağ olun. İnternet şifresini nereden öğrenebilirim?",
+                "ru": "Большое спасибо. Где мне узнать пароль от интернета?"
+              }
+            },
+            {
+              "b": {
+                "who": "Kapıcı Hasan",
+                "ava": "Ha",
+                "tr": "Modemin altında yazıyor. Başka bir şey lazım mı?",
+                "ru": "Написан снизу на модеме. Что-нибудь ещё нужно?"
+              }
+            },
+            {
+              "p": "В квартире холодно, как на перроне. На стене висит газовый котёл с тремя ручками и ни одной понятной надписью."
+            },
+            {
+              "choice": {
                 "q": "Как попросить показать, как включить котёл?",
                 "opts": [
-                  { "tr": "Kombiyi nasıl çalıştırabileceğimi gösterir misiniz?", "ru": "Покажете, как мне включить котёл?", "ok": true, "then": "«Gel, göstereyim». Хасан-эфенди поднимается с тобой, крутит правую ручку, и котёл гудит. Через десять минут батареи тёплые." },
-                  { "tr": "Kombi beni çalıştırır mı?", "ru": "Котёл меня включит?", "ok": false, "then": "Хасан-эфенди смеётся: «Kombi seni değil, sen kombiyi çalıştıracaksın». Не котёл тебя включает, а ты его. Включаешь *что*: *kombiyi çalıştırmak*." }
+                  {
+                    "tr": "Kombiyi nasıl çalıştırabileceğimi gösterir misiniz?",
+                    "ru": "Покажете, как мне включить котёл?",
+                    "ok": true,
+                    "then": "«Gel, göstereyim». Хасан-эфенди поднимается с тобой, крутит правую ручку, и котёл гудит. Через десять минут батареи тёплые."
+                  },
+                  {
+                    "tr": "Kombi beni çalıştırır mı?",
+                    "ru": "Котёл меня включит?",
+                    "ok": false,
+                    "then": "Хасан-эфенди смеётся: «Kombi seni değil, sen kombiyi çalıştıracaksın». Не котёл тебя включает, а ты его. Включаешь *что*: *kombiyi çalıştırmak*."
+                  }
                 ]
-            } },
-            { "note": { "h": "вопрос внутри просьбы", "text": "[[nasıl çalıştırabileceğimi|как я могу включить]]: вопрос «как я включу?» стал частью большой фразы. Внутри *-(y)eceğ-* и *-im-i*: «то, как я смогу включить», и это «то» ты просишь показать. Это уже язык B2.", "ex": [["Nasıl çalıştırabileceğimi gösterir misiniz?", "Покажете, как это включить?"], ["Çöpü ne zaman çıkaracağımı bilmiyorum.", "Я не знаю, когда выносить мусор."]] } },
-            { "b": { "who": "Sen", "tr": "Bir de çöpü ne zaman çıkarmam gerekiyor?", "ru": "И ещё: когда мне выносить мусор?" } },
-            { "b": { "who": "Kapıcı Hasan", "ava": "Ha", "tr": "Akşam sekizden sonra kapının önüne koy, ben alırım.", "ru": "Ставь у двери после восьми вечера, я заберу." } },
-            { "quirk": "Кападжи в анкарском доме — больше, чем консьерж. Он забирает мусор у дверей, может утром принести хлеб и знает всех жильцов по именам. На праздник ему принято оставить небольшой подарок или деньги." }
+              }
+            },
+            {
+              "note": {
+                "h": "вопрос внутри просьбы",
+                "text": "[[nasıl çalıştırabileceğimi|как я могу включить]]: вопрос «как я включу?» стал частью большой фразы. Внутри *-(y)eceğ-* и *-im-i*: «то, как я смогу включить», и это «то» ты просишь показать. Это уже язык B2.",
+                "ex": [
+                  [
+                    "Nasıl çalıştırabileceğimi gösterir misiniz?",
+                    "Покажете, как это включить?"
+                  ],
+                  [
+                    "Çöpü ne zaman çıkaracağımı bilmiyorum.",
+                    "Я не знаю, когда выносить мусор."
+                  ]
+                ]
+              }
+            },
+            {
+              "b": {
+                "who": "Sen",
+                "tr": "Bir de çöpü ne zaman çıkarmam gerekiyor?",
+                "ru": "И ещё: когда мне выносить мусор?"
+              }
+            },
+            {
+              "b": {
+                "who": "Kapıcı Hasan",
+                "ava": "Ha",
+                "tr": "Akşam sekizden sonra kapının önüne koy, ben alırım.",
+                "ru": "Ставь у двери после восьми вечера, я заберу."
+              }
+            },
+            {
+              "quirk": "Кападжи в анкарском доме — больше, чем консьерж. Он забирает мусор у дверей, может утром принести хлеб и знает всех жильцов по именам. На праздник ему принято оставить небольшой подарок или деньги."
+            }
           ]
         }
       ],
       "end": "В половине девятого ты сидишь на подоконнике в Каваклыдере с горячим чаем от Хасана-эфенди. Багаж, карта, дорога и котёл: всё решено по-турецки. Неделя в столице началась.",
       "goals": [
-        ["Bagajımı alt bölmeden alabilir miyim?", "Можно забрать мой багаж снизу?"],
-        ["Kızılay'a gitmek için hangi kartı almam gerekiyor?", "Какую карту мне нужно купить, чтобы доехать до Кызылая?"],
-        ["Kartıma yüz lira yükler misiniz?", "Положите на мою карту сто лир?"],
-        ["Kavaklıdere'ye yürüyerek ne kadar sürer?", "Сколько идти пешком до Каваклыдере?"],
-        ["İnternet şifresini nereden öğrenebilirim?", "Где мне узнать пароль от интернета?"],
-        ["Kombiyi nasıl çalıştırabileceğimi gösterir misiniz?", "Покажете, как мне включить котёл?"]
+        [
+          "Bagajımı alt bölmeden alabilir miyim?",
+          "Можно забрать мой багаж снизу?"
+        ],
+        [
+          "Kızılay'a gitmek için hangi kartı almam gerekiyor?",
+          "Какую карту мне нужно купить, чтобы доехать до Кызылая?"
+        ],
+        [
+          "Kartıma yüz lira yükler misiniz?",
+          "Положите на мою карту сто лир?"
+        ],
+        [
+          "Kavaklıdere'ye yürüyerek ne kadar sürer?",
+          "Сколько идти пешком до Каваклыдере?"
+        ],
+        [
+          "İnternet şifresini nereden öğrenebilirim?",
+          "Где мне узнать пароль от интернета?"
+        ],
+        [
+          "Kombiyi nasıl çalıştırabileceğimi gösterir misiniz?",
+          "Покажете, как мне включить котёл?"
+        ]
       ],
       "words": [
-        ["ayaz", "сухой мороз с ветром"],
-        ["peron", "перрон"],
-        ["bagaj fişi", "багажная бирка"],
-        ["alt bölme", "нижний (багажный) отсек"],
-        ["yüklemek", "пополнять, класть деньги на карту"],
-        ["turnike", "турникет"],
-        ["çıkış", "выход"],
-        ["bulvar", "бульвар"],
-        ["kapıcı", "консьерж дома"],
-        ["daire", "квартира"],
-        ["kombi", "газовый котёл"],
-        ["şifre", "пароль"]
+        [
+          "ayaz",
+          "сухой мороз с ветром"
+        ],
+        [
+          "peron",
+          "перрон"
+        ],
+        [
+          "bagaj fişi",
+          "багажная бирка"
+        ],
+        [
+          "alt bölme",
+          "нижний (багажный) отсек"
+        ],
+        [
+          "yüklemek",
+          "пополнять, класть деньги на карту"
+        ],
+        [
+          "turnike",
+          "турникет"
+        ],
+        [
+          "çıkış",
+          "выход"
+        ],
+        [
+          "bulvar",
+          "бульвар"
+        ],
+        [
+          "kapıcı",
+          "консьерж дома"
+        ],
+        [
+          "daire",
+          "квартира"
+        ],
+        [
+          "kombi",
+          "газовый котёл"
+        ],
+        [
+          "şifre",
+          "пароль"
+        ]
       ],
       "yasiz": {
         "tr": "Sen yeni bir şehre sabah erkenden varınca ilk ne yaparsın?",
@@ -108,34 +344,118 @@
       },
       "practice": [
         {
-          "kit": "build", "rubric": "Cümle kuralım.", "type": "build_sentence", "difficulty": 2,
+          "kit": "build",
+          "rubric": "Cümle kuralım.",
+          "type": "build_sentence",
+          "difficulty": 2,
           "instruction": "Собери вопрос из слов.",
           "items": [
-            { "id": "1", "translation": "Какую карту мне нужно купить, чтобы доехать до Кызылая?", "words": ["Kızılay'a", "gitmek", "için", "hangi", "kartı", "almam", "gerekiyor?"], "explanation": "Kızılay'a gitmek için hangi kartı almam gerekiyor?" },
-            { "id": "2", "translation": "Покажете, как мне включить котёл?", "words": ["Kombiyi", "nasıl", "çalıştırabileceğimi", "gösterir", "misiniz?"], "explanation": "Kombiyi nasıl çalıştırabileceğimi gösterir misiniz?" }
+            {
+              "id": "1",
+              "translation": "Какую карту мне нужно купить, чтобы доехать до Кызылая?",
+              "words": [
+                "Kızılay'a",
+                "gitmek",
+                "için",
+                "hangi",
+                "kartı",
+                "almam",
+                "gerekiyor?"
+              ],
+              "explanation": "Kızılay'a gitmek için hangi kartı almam gerekiyor?"
+            },
+            {
+              "id": "2",
+              "translation": "Покажете, как мне включить котёл?",
+              "words": [
+                "Kombiyi",
+                "nasıl",
+                "çalıştırabileceğimi",
+                "gösterir",
+                "misiniz?"
+              ],
+              "explanation": "Kombiyi nasıl çalıştırabileceğimi gösterir misiniz?"
+            }
           ]
         },
         {
-          "kit": "gap", "rubric": "Boşlukları dolduralım.", "type": "gap_fill", "difficulty": 2,
+          "kit": "gap",
+          "rubric": "Boşlukları dolduralım.",
+          "type": "gap_fill",
+          "difficulty": 2,
           "instruction": "Заполни пропуски фразами из истории.",
           "items": [
-            { "id": "1", "text": "Bagajımı alt ___ alabilir miyim?", "answers": [["bölmeden"]], "explanation": "Bagajımı alt bölmeden alabilir miyim?" },
-            { "id": "2", "text": "AnkaraKart alıp içine para ___ lazım.", "answers": [["yüklemeniz"]], "explanation": "AnkaraKart alıp içine para yüklemeniz lazım." },
-            { "id": "3", "text": "Kuğulu Park'ı ___ sola dönün.", "answers": [["görünce"]], "explanation": "Kuğulu Park'ı görünce sola dönün." },
-            { "id": "4", "text": "Çöpü ne zaman çıkarmam ___?", "answers": [["gerekiyor"]], "explanation": "Çöpü ne zaman çıkarmam gerekiyor?" }
+            {
+              "id": "1",
+              "text": "Bagajımı alt ___ alabilir miyim?",
+              "answers": [
+                [
+                  "bölmeden"
+                ]
+              ],
+              "explanation": "Bagajımı alt bölmeden alabilir miyim?"
+            },
+            {
+              "id": "2",
+              "text": "AnkaraKart alıp içine para ___ lazım.",
+              "answers": [
+                [
+                  "yüklemeniz"
+                ]
+              ],
+              "explanation": "AnkaraKart alıp içine para yüklemeniz lazım."
+            },
+            {
+              "id": "3",
+              "text": "Kuğulu Park'ı ___ sola dönün.",
+              "answers": [
+                [
+                  "görünce"
+                ]
+              ],
+              "explanation": "Kuğulu Park'ı görünce sola dönün."
+            },
+            {
+              "id": "4",
+              "text": "Çöpü ne zaman çıkarmam ___?",
+              "answers": [
+                [
+                  "gerekiyor"
+                ]
+              ],
+              "explanation": "Çöpü ne zaman çıkarmam gerekiyor?"
+            }
           ]
         },
         {
-          "kit": "write", "rubric": "Yazalım.", "type": "custom", "difficulty": 2,
+          "kit": "write",
+          "rubric": "Yazalım.",
+          "type": "custom",
+          "difficulty": 2,
           "instruction": "Напиши Несрин-ханым сообщение: ты доехал, ключи у кападжи забрал, котёл работает. Спроси одну вещь про квартиру. 3–4 предложения на «siz».",
           "items": [
-            { "id": "1", "task": "Напиши Несрин-ханым сообщение: ты доехал, ключи у кападжи забрал, котёл работает. Спроси одну вещь про квартиру. 3–4 предложения на «siz».",
+            {
+              "id": "1",
+              "task": "Напиши Несрин-ханым сообщение: ты доехал, ключи у кападжи забрал, котёл работает. Спроси одну вещь про квартиру. 3–4 предложения на «siz».",
               "model": "Günaydın Nesrin Hanım, sabah Ankara'ya geldim. Anahtarı Hasan Efendi'den aldım, kombi de çalışıyor. Çamaşır makinesini nasıl kullanacağımı söyler misiniz? Teşekkür ederim.",
               "answer": "Günaydın Nesrin Hanım, sabah Ankara'ya geldim. Anahtarı Hasan Efendi'den aldım, kombi de çalışıyor. Çamaşır makinesini nasıl kullanacağımı söyler misiniz? Teşekkür ederim.",
-              "explanation": "Можно так: Günaydın Nesrin Hanım, sabah Ankara'ya geldim. Anahtarı Hasan Efendi'den aldım, kombi de çalışıyor. Çamaşır makinesini nasıl kullanacağımı söyler misiniz? Teşekkür ederim." }
+              "explanation": "Можно так: Günaydın Nesrin Hanım, sabah Ankara'ya geldim. Anahtarı Hasan Efendi'den aldım, kombi de çalışıyor. Çamaşır makinesini nasıl kullanacağımı söyler misiniz? Teşekkür ederim."
+            }
           ]
         }
-      ]
+      ],
+      "prep": {
+        "q": "Ты приезжаешь в незнакомый город ночным автобусом. Какие слова тебе точно понадобятся в первый час? Нажми и послушай.",
+        "chips": [
+          "otobüs",
+          "bagaj",
+          "bilet",
+          "metro",
+          "adres",
+          "anahtar"
+        ]
+      },
+      "culture": "Тому, кто работает, говорят [[kolay gelsin|пусть работа будет лёгкой]]: кассиру, стюарду, кападжи с чайником. Отвечают *sağ ol* или *sağ olun*. Скажешь это Хасану-эфенди, и тон разговора сразу станет теплее."
     }
   ]
 }
