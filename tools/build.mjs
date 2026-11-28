@@ -124,20 +124,23 @@ const culture = (c) => c ? `      <aside class="dy-culture"><p class="dy-culture
 /** Поведение страницы сверх kit: анимация сцены (как design.js у дней A1) и самопроверка «скрыть перевод». */
 const PAGE_JS = `<script>
 (() => {
-  document.querySelectorAll('[data-hide-ru]').forEach((t) => {
-    const s = t.closest('section');
-    t.addEventListener('click', () => {
-      const on = s.classList.toggle('is-hide-ru');
-      t.setAttribute('aria-pressed', on);
-      t.textContent = on ? 'Показать перевод' : 'Скрыть перевод';
-      s.querySelectorAll('.is-peek').forEach((x) => x.classList.remove('is-peek'));
-    });
-    s.addEventListener('click', (e) => {
-      const row = e.target.closest('.dy-goal__w, .st-words li');
-      if (row && s.classList.contains('is-hide-ru') && !e.target.closest('button')) row.classList.toggle('is-peek');
-    }, true);
-  });
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !window.gsap) return;
+  // сцены: «Сцена N →» и остановки маршрута открывают вкладку Diyalog на нужной сцене
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const toPanel = () => {
+    const p = document.getElementById('p-diyalog');
+    if (p) window.scrollTo({ top: p.getBoundingClientRect().top + scrollY - 70, behavior: RM ? 'auto' : 'smooth' });
+  };
+  const scene = (i) => {
+    const t = document.getElementById('t-diyalog');
+    if (t && t.getAttribute('aria-selected') !== 'true') t.click();
+    setTimeout(() => { const b = document.querySelector('[data-dlg="' + i + '"]'); if (b) b.click(); toPanel(); }, 60);
+  };
+  document.querySelectorAll('[data-dlg-go]').forEach((b) => b.addEventListener('click', () => scene(Number(b.dataset.dlgGo))));
+  document.querySelectorAll('.vz-route [data-route]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    scene(Number(a.dataset.route.replace('ch-', '')) - 1);
+  }));
+  if (RM || !window.gsap) return;
   const q = (c) => document.querySelectorAll('.lx-scene .' + c);
   gsap.from(q('an-drive'), { x: -380, duration: 2.2, ease: 'power3.out', delay: 0.2 });
   gsap.from(q('an-sun'), { y: 40, opacity: 0, duration: 1.6, ease: 'power2.out' });
@@ -154,52 +157,100 @@ const favicon = (accent) => 'data:image/svg+xml,' + encodeURIComponent(
 const sec = (key, words, extra = '') => `<section data-section="${key}" data-words="${words}"${extra}`;
 const kicker = (icon, tr) => `<p class="lx-kicker"><span class="lx-kicker__ico">${icon}</span><span lang="tr">${tr}</span></p>`;
 
+/** Диалог главы: реплики появляются по одной (lx-chat из kit, как в днях A1). Повествование — одна строка-подпись. */
+function dlgBox(ch, i, all) {
+  const lines = ch.blocks.filter((b) => b.b).map((b, k) => {
+    const me = b.b.who === 'Sen';
+    return `          <div class="lx-msg${me ? ' lx-msg--me' : ''}" data-line="${k}"><span class="lx-msg__ava" aria-hidden="true" data-ui>${esc(b.b.ava || ava(b.b.who))}</span><span class="lx-msg__who" lang="tr">${esc(b.b.who)}</span><p class="lx-msg__tr" lang="tr" data-say="${esc(b.b.tr)}">${esc(b.b.tr)}</p><p class="lx-msg__ru">${esc(b.b.ru)}</p></div>`;
+  }).join('\n');
+  const [t, ...pl] = ch.time.split('·').map((s) => s.trim());
+  const cap = ch.caption || '';
+  const quirks = ch.blocks.filter((b) => b.quirk).map((b) => `        <details class="vz-more"><summary><span class="vz-more__ico">${IC.quirk}</span>Кстати</summary><p>${rich(b.quirk)}</p></details>`).join('\n');
+  const vizs = ch.blocks.filter((b) => b.viz && ['map', 'scale', 'bars'].includes(b.viz.type)).map((b) => '        ' + viz(b.viz, IC)).join('\n');
+  return `      <div class="lx-dlg${i === 0 ? ' is-on' : ''}" data-dlg-box="${i}" id="ch-${i + 1}">
+        <div class="lx-dlg__head"><h3>${esc(ch.title)}</h3><span class="lx-badge">${esc(t)}</span></div>
+        <p class="lx-place"><span class="lx-ico">${IC.place}</span><span lang="tr">${esc(pl.join(' · '))}</span></p>${cap ? `\n        <p class="vz-cap">${rich(cap)}</p>` : ''}
+        <div class="lx-chat" data-chat="${i}">
+${lines}
+        </div>
+        ${IC.chat_ctrl}
+${vizs}${vizs ? '\n' : ''}${quirks}
+        ${i < all.length - 1 ? `<button type="button" class="lx-btn lx-btn--ghost vz-scene-next" data-dlg-go="${i + 1}">Сцена ${i + 2}: ${esc(all[i + 1].title)} →</button>` : ''}
+      </div>`;
+}
+
+/** Переключатель сцен над диалогами: kit сам ставит aria-pressed и is-on по data-dlg. */
+const scenes = (chapters) => `      <div class="vz-scenes" role="group" aria-label="Сцены дня" data-ui>${chapters.map((c, i) => `<button type="button" class="vz-scenes__b" data-dlg="${i}" aria-pressed="${i === 0}"><b>${i + 1}</b><span>${esc(c.time.split('·')[0].trim())}</span></button>`).join('')}</div>`;
+
+/** Карточка-подсказка: заголовок и примеры видны, объяснение свёрнуто. */
+function tipCard(n) {
+  const ex = (n.ex || []).map(([tr, ru]) => `<li><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></li>`).join('');
+  return `      <article class="vz vz-tip"><p class="vz-tip__h"><span class="vz-tip__ico">${IC.note}</span>${esc(n.h.charAt(0).toLocaleUpperCase('ru') + n.h.slice(1))}</p>${ex ? `<ul class="vz-tip__ex">${ex}</ul>` : ''}<details class="vz-more"><summary>Почему так</summary><p>${rich(n.text)}</p></details></article>`;
+}
+
+/** Карточки слов с примером из урока на обороте (lx-cards из kit). */
+function wordCards(L) {
+  const lines = L.chapters.flatMap((c) => c.blocks.filter((b) => b.b).map((b) => b.b));
+  const cards = L.words.map(([tr, ru]) => {
+    const key = tr.toLocaleLowerCase('tr').split(' ')[0].slice(0, 5);
+    const ex = lines.find((b) => b.tr.toLocaleLowerCase('tr').includes(key)) || { tr: L.goals[0][0], ru: L.goals[0][1] };
+    return `        <article class="lx-card" data-word="${esc(tr)}" data-g="0" tabindex="0">
+          <div class="lx-card__face">
+            <div class="lx-card__top"><span class="lx-ico">${IC.card}</span><div class="lx-card__w"><b class="lx-card__tr" lang="tr">${esc(tr)}</b><span class="lx-card__ru">${esc(ru)}</span></div><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></div>
+          </div>
+          <div class="lx-card__back">
+            <div class="lx-ex"><p class="lx-ex__tr"><a-say>${esc(ex.tr)}</a-say></p><p class="lx-ex__ru">${esc(ex.ru)}</p></div>
+          </div>
+          <div class="lx-card__acts" data-ui><button type="button" class="lx-card__flip" aria-expanded="false">Пример</button><button type="button" class="lx-card__know" aria-pressed="false">Знаю</button></div>
+        </article>`;
+  }).join('\n');
+  return `      <p class="lx-empty" data-ui hidden>Ничего не нашлось</p>
+      <div class="lx-cards" data-g="0">
+${cards}
+      </div>`;
+}
+
+const TABS = [
+  ['hedef', 'Hedef', 'цель'], ['diyalog', 'Diyalog', 'сцены'], ['dilbilgisi', 'Dil bilgisi', 'схемы'], ['sozluk', 'Sözlük', 'слова'],
+  ['yasiz', 'Ya siz?', 'а у тебя'], ['practice', 'Alıştırma', 'практика'], ['simulator', 'Simülatör', 'квест'],
+  ['konusma', 'Konuşma', 'говорение'], ['check', 'Sınav', 'тест'], ['cheat', 'Özet', 'итог'],
+];
+const TAB_ICON = { hedef: 'tab_hedef', diyalog: 'tab_diyalog', dilbilgisi: 'note', sozluk: 'tab_sozluk', yasiz: 'tab_yasiz', practice: 'tab_practice', simulator: 'tab_simulator', konusma: 'quirk', check: 'tab_check', cheat: 'tab_cheat' };
+
 function page(D, L, scene, exList) {
   const many = D.lessons.length > 1;
-  const file = L.n === 1 ? 'index.html' : `lesson-${L.n}.html`;
   const part = many ? ` · часть ${L.n}` : '';
-  const choices = L.chapters.reduce((s, c) => s + c.blocks.filter((b) => b.choice).length, 0);
-  const tasks = L.practice.length + 1;
   const nav = many
     ? `<nav class="lx-lessons" aria-label="Части дня">${D.lessons.map((x) => `<a href="${x.n === 1 ? 'index.html' : `lesson-${x.n}.html`}"${x.n === L.n ? ' aria-current="page"' : ''}>${x.n}</a>`).join('')}</nav>`
     : '';
-  // Порядок разделов повторяет анатомию урока Yeni İstanbul (book_basis в дорожной карте):
-  // открытие юнита (BECERİLER / DİL BİLGİSİ / KELİMELER) → Hedef dil → Hazırlık → Okuma → Dil bilgisi →
-  // Söz varlığı → Alıştırmalar со сквозной нумерацией → Ya siz? → Dinleme → Yazma → Konuşma → Özet → Sınav.
-  const SECTIONS = [
-    ['p-acilis', 'Açılış'], ['p-hazirlik', 'Hazırlık'], ['p-hikaye', 'Okuma'], ['p-dilbilgisi', 'Dil bilgisi'],
-    ['p-sozluk', 'Kelimeler'], ['p-practice', 'Alıştırma'], ['p-yasiz', 'Ya siz?'], ['p-dinleme', 'Dinleme'],
-    ['p-yazma', 'Yazma'], ['p-konusma', 'Konuşma'], ['p-ozet', 'Özet'], ['p-check', 'Sınav'],
-  ];
-  const toc = SECTIONS.map(([id, t]) => `<li><a href="#${id}" data-toc="${id}"><span lang="tr">${t}</span></a></li>`).join('');
-  const storyText = L.chapters.map((c) => c.blocks.map((b) => b.p || b.b?.tr || b.b?.ru || b.note?.text || b.quirk || b.choice?.q || '').join(' ')).join(' ');
+  const tabs = TABS.map(([k, tr, ru], i) => `    <button type="button" class="lx-tab" role="tab" id="t-${k}" aria-controls="p-${k}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-tab="${k}"><span class="lx-tab__ico">${IC[TAB_ICON[k]]}</span><b lang="tr">${tr}</b><small>${ru}</small><span class="lx-tab__ok" aria-hidden="true"></span></button>`).join('\n');
+  const nextOf = (k) => { const i = TABS.findIndex((t) => t[0] === k); const n = TABS[i + 1]; return n ? `      <div class="lx-foot" data-ui><button type="button" class="lx-btn lx-foot__next" data-tab-go="${n[0]}">Дальше: ${n[1]} (${n[2]})</button></div>` : ''; };
+  const panel = (k, kick, h2, hint, body) => `  <section data-section="${k}" data-words="${Math.max(8, words(strip(body)))}" id="p-${k}" class="lx-panel" role="tabpanel" aria-labelledby="t-${k}">
+      <div class="lx-ph">
+        ${kicker(IC[TAB_ICON[k]], kick)}
+        <h2>${h2}</h2>${hint ? `\n        <p class="lx-hint">${hint}</p>` : ''}
+      </div>
+${body}
+${nextOf(k)}
+  </section>`;
+  const goalLi = ([tr, ru], i, tag = '') => `        <li class="dy-goal__i" style="--i:${i}"><span class="dy-goal__n" data-ui>${tag}${i + 1}</span><span class="dy-goal__w"><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></span><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></li>`;
+  const op = L.opener || { skills: [L.can_do], grammar: [], words: [] };
   const trText = [
     ...L.chapters.flatMap((c) => c.blocks.map((b) => [b.b?.tr, b.note?.text, ...(b.note?.ex || []).map((x) => x[0]), b.quirk, ...(b.choice?.opts || []).map((o) => o.tr)].filter(Boolean).join(' '))),
     ...L.goals.map((g) => g[0]), L.yasiz.tr, L.yasiz.model, ...(L.konusma?.model || []).map((m) => m[1]),
   ].join(' ');
-  const goalLi = ([tr, ru], i) => `        <li class="dy-goal__i" style="--i:${i}"><span class="dy-goal__n" data-ui>${i + 1}</span><span class="dy-goal__w"><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></span><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></li>`;
-  const goals = L.goals.map(goalLi).join('\n');
-  const wordsHtml = L.words.map(([tr, ru]) => `        <li><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></li>`).join('\n');
-  const practice = exList.filter((e) => e.kind === 'practice');
+  const practice = exList.filter((e) => e.kind === 'practice' && !e._sim);
+  const sim = exList.find((e) => e._sim);
   let no = 0;
   const task = (e) => `      <div class="dy-task" data-kit="${e._task.kit}"><p class="dy-rubric"><span class="dy-no" data-ui>${++no}</span><span lang="tr">${esc(e._task.rubric)}</span></p><a-exercise ref="${e.id}"${e.type === 'custom' ? ' data-free' : ''}></a-exercise></div>`;
-  const drill = practice.filter((e) => e._task.kit !== 'write' && e._task.kit !== 'dinle').map(task).join('\n');
-  const listen = practice.filter((e) => e._task.kit === 'dinle').map(task).join('\n');
-  const write = practice.filter((e) => e._task.kit === 'write').map(task).join('\n');
   const checkId = exList.find((e) => e.kind === 'check').id;
-  const next = many && L.n < D.lessons.length
-    ? `\n      <a class="lx-next" href="lesson-${L.n + 1}.html">Часть ${L.n + 1} →</a>`
-    : D._next
-      ? `\n      <a class="lx-next" href="../${D._next.id}/" data-next-day="${D._next.id}">День ${D._next.day}: ${esc(D._next.title_ru)} →</a>`
-      : '\n      ';
-  const cast = [...new Set(L.chapters.flatMap((c) => c.blocks.filter((b) => b.b && b.b.who !== 'Sen').map((b) => b.b.who)))];
-  const vizCount = L.chapters.reduce((s, c) => s + c.blocks.filter((b) => b.viz).length, 0) + (L.after_story || []).length + (L.grammar?.viz || []).length + 4;
-  const op = L.opener || { skills: [L.can_do], grammar: [], words: [] };
-  const hedefLines = (L.hedef?.lines || L.goals.slice(0, 3)).map(goalLi).join('\n');
-  const head = (icon, tr, h2, hint = '') => `      <div class="lx-ph">
-        ${kicker(icon, tr)}
-        <h2>${h2}</h2>${hint ? `\n        <p class="lx-hint">${hint}</p>` : ''}
-      </div>`;
+  const nextDay = many && L.n < D.lessons.length
+    ? `      <a class="lx-next" href="lesson-${L.n + 1}.html">Часть ${L.n + 1} →</a>`
+    : D._next ? `      <a class="lx-next" href="../${D._next.id}/" data-next-day="${D._next.id}">День ${D._next.day}: ${esc(D._next.title_ru)} →</a>` : '';
+  const notes = L.chapters.flatMap((c) => c.blocks.filter((b) => b.note).map((b) => b.note));
+  const storyViz = L.chapters.flatMap((c) => c.blocks.filter((b) => b.viz && ['anatomy', 'pairs'].includes(b.viz.type)).map((b) => b.viz));
+  const cheat = [...L.goals, ...L.words].map(([tr, ru]) => `        <tr><td lang="tr" data-say="${esc(tr)}">${esc(tr)}</td><td>${esc(ru)}</td></tr>`).join('\n');
+  const vizCount = 1 + L.chapters.reduce((s, c) => s + c.blocks.filter((b) => b.viz).length, 0) + (L.grammar?.viz || []).length + (L.after_story || []).length + (L.after_ozet || []).length + 2;
 
   return `<!doctype html>
 <html lang="ru">
@@ -222,13 +273,11 @@ function page(D, L, scene, exList) {
 <link rel="stylesheet" href="../kit/v1/kit.css">
 <link rel="stylesheet" href="../kit/v1/lexicon.css">
 <link rel="stylesheet" href="../kit/v1/day.css">
-<link rel="stylesheet" href="../kit/v1/story.css">
 <link rel="stylesheet" href="../kit/v1/lexicon-fonts.css">
 <link rel="stylesheet" href="media/design.css">
 </head>
-<body class="lx dy st" data-city="${CITY.slug}" data-lessons="${D.lessons.length}" data-design="${D.design.name}">
-<!-- Собрано tools/build.mjs из src/days/${D.id}.json. Руками не править. -->
-<a class="dy-skip" href="#p-hikaye">К истории дня</a>
+<body class="lx dy" data-city="${CITY.slug}" data-lessons="${D.lessons.length}" data-read="hedef diyalog dilbilgisi sozluk yasiz konusma cheat" data-design="${D.design.name}">
+<!-- Собрано tools/build.mjs из src/days/${D.id}.json в вкладочном формате дней платформы (как d.a1.NN). Руками не править. -->
 <header class="lx-app">
   <span class="lx-app__logo"><span class="lx-app__ico">${IC.map}</span></span>
   <div class="lx-app__t"><b>Alterna · ${CITY.level} · день ${D.day}</b><small>${esc(D.place_ru)} · <span lang="tr">${esc(D.place_tr)}</span></small></div>
@@ -236,115 +285,78 @@ function page(D, L, scene, exList) {
   <div class="lx-app__prog" title="Пройдено разделов урока"><svg class="lx-ring lx-app__ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="lx-ring__bg" cx="18" cy="18" r="15.9155"/><circle class="lx-ring__fg" cx="18" cy="18" r="15.9155" pathLength="100" stroke-dasharray="0 100"/><text x="18" y="21" text-anchor="middle">0%</text></svg></div>
 </header>
 <main>
-  ${sec('intro', words(D.title_ru + ' ' + L.hook) + 8, ' class="lx-hero">')}
+  <section data-section="intro" data-words="${words(D.title_ru + ' ' + L.hook)}" class="lx-hero">
       <div class="lx-scene" aria-hidden="true" data-ui>${scene}</div>
       <p class="lx-tag">${CITY.level} · ${CITY.ru} · день ${D.day}</p>
       <h1>${esc(D.title_ru)}</h1>
       <p class="lx-hero__tr" lang="tr">${esc(D.title_tr)}</p>
       <p class="lx-hero__meta"><span class="lx-hero__pin">${IC.pin}</span><span>${esc(D.place_ru)}</span>${many ? ` · часть ${L.n} из ${D.lessons.length}` : ''}</p>
-      <p class="lx-hero__intro st-hook">${rich(L.hook)}</p>
-      <p class="st-cast"><span>В истории:</span> ${cast.map((c) => `<b lang="tr">${esc(c)}</b>`).join(', ')}</p>
+      <p class="lx-hero__intro">${rich(L.hook)}</p>
       <ul class="lx-stats" data-ui>
-        <li><b>${L.minutes}</b><span>${plural(L.minutes, ['минута', 'минуты', 'минут'])}</span></li><li><b>${L.chapters.length}</b><span>${plural(L.chapters.length, ['глава', 'главы', 'глав'])}</span></li><li><b>${vizCount}</b><span>${plural(vizCount, ['схема', 'схемы', 'схем'])}</span></li><li><b>${practice.length}</b><span>${plural(practice.length, ['задание', 'задания', 'заданий'])}</span></li>
+        <li><b>${L.minutes}</b><span>${plural(L.minutes, ['минута', 'минуты', 'минут'])}</span></li><li><b>${L.chapters.length}</b><span>${plural(L.chapters.length, ['сцена', 'сцены', 'сцен'])}</span></li><li><b>${vizCount}</b><span>${plural(vizCount, ['схема', 'схемы', 'схем'])}</span></li><li><b>${TABS.length}</b><span>разделов</span></li>
       </ul>
   </section>
 
-  <nav class="st-toc" data-scrollbar aria-label="Разделы урока">
-    <ol class="st-toc__l">
-      ${toc}
-    </ol>
-    <span class="st-toc__bar" aria-hidden="true"></span>
+  <nav class="lx-tabs" data-scrollbar role="tablist" aria-label="Разделы урока">
+${tabs}
+    <span class="lx-tabs__line" aria-hidden="true"></span>
   </nav>
 
-  ${sec('acilis', words(op.skills.join(' ') + op.grammar.join(' ') + op.words.join(' ')), ' id="p-acilis" class="st-sec">')}
-${head(IC.k_zet, 'Ünite açılışı', 'Что будет сегодня', 'Как в начале юнита учебника: умения, грамматика и слова дня.')}
-${opener(op)}
-      <div class="vz vz-hedef">
-        <p class="vz__h"><span lang="tr">Hedef dil</span> <span>что ты сегодня скажешь</span></p>
-        <p class="vz-hedef__forms">${op.grammar.map((g) => `<span class="vz-chip" lang="tr">${esc(g)}</span>`).join('')}</p>
-        <ol class="dy-goal">
-${hedefLines}
-        </ol>
-      </div>
-  </section>
+${panel('hedef', 'Hedef', 'Что ты скажешь сегодня', esc(L.can_do), `${opener(op)}
+      <ol class="dy-goal">
+${(L.hedef?.lines || L.goals.slice(0, 3)).map((g, i) => goalLi(g, i, 'B')).join('\n')}
+      </ol>
+${prep(L.prep)}${route(L.chapters)}`)}
 
-  ${sec('hazirlik', 20, ' id="p-hazirlik" class="st-sec">')}
-${head(IC.k_yasiz, 'Hazırlık çalışması', 'Подготовка', 'До текста: вспомни знакомое и посмотри, где пройдёт день.')}
-${prep(L.prep)}${route(L.chapters)}  </section>
+${panel('diyalog', 'Diyalog', 'Сцены дня', 'Реплики появляются по одной. Нажми на турецкую фразу, чтобы услышать её.', `${scenes(L.chapters)}
+${L.chapters.map(dlgBox).join('\n')}
+${(L.after_story || []).map((v) => '      ' + viz(v, IC)).join('\n')}`)}
 
-  ${sec('hikaye', words(strip(storyText)), ' id="p-hikaye" class="st-sec">')}
-      <div class="lx-ph st-head">
-        ${kicker(IC.k_hikye, 'Okuma')}
-        <h2>История дня</h2>
-        <p class="lx-hint">Нажимай на турецкие слова: услышишь их и увидишь перевод. Когда герою нужно ответить, выбирай сам.</p>
-      </div>
-      <div class="st-chs">
-${L.chapters.map(chapter).join('\n')}
-      </div>
-      <p class="st-end">${rich(L.end)}</p>
-${(L.after_story || []).map((v) => '      ' + viz(v, IC)).join('\n')}
-  </section>
+${panel('dilbilgisi', 'Dil bilgisi', esc(L.grammar?.title || 'Грамматика дня'), 'Листай шаги и нажимай на части схем.', `${(L.grammar?.viz || []).map((v) => '      ' + viz(v, IC)).join('\n')}
+${storyViz.map((v) => '      ' + viz(v, IC)).join('\n')}
+${notes.map(tipCard).join('\n')}`)}
 
-  ${sec('dilbilgisi', 40, ' id="p-dilbilgisi" class="st-sec">')}
-${head(IC.k_altrma, 'Dil bilgisi', esc(L.grammar?.title || 'Грамматика дня'), esc(L.grammar?.hint || 'Разбираем форму по шагам: смотри, как меняется фраза.'))}
-${(L.grammar?.viz || []).map((v) => '      ' + viz(v, IC)).join('\n')}
-  </section>
+${panel('sozluk', 'Sözlük', 'Слова дня', 'Крупнее — чаще звучало. Карточка переворачивается и показывает пример из сцены.', `${cloud(L.words, trText)}
+      <div class="lx-tools" data-ui><input type="search" class="lx-search" placeholder="Поиск слова или перевода" aria-label="Поиск слова или перевода" autocomplete="off" spellcheck="false"></div>
+      <div class="lx-learn" data-ui>${IC.learn}<p>Выучено <b data-known>0</b> из <b>${L.words.length}</b></p><label class="lx-switch"><input type="checkbox" data-hide-ru> Скрыть перевод</label></div>
+${wordCards(L)}`)}
 
-  ${sec('sozluk', words(L.words.flat().join(' ')), ' id="p-sozluk" class="st-sec">')}
-${head(IC.k_zet, 'Söz varlığı', 'Слова дня', 'Чем крупнее слово, тем чаще оно звучало в истории. Нажми, чтобы услышать.')}
-${cloud(L.words, trText)}
-      <div class="dy-selfcheck" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-hide-ru aria-pressed="false">Скрыть перевод</button><span>Проверь себя: вспомни перевод, потом нажми на строку.</span></div>
-      <ul class="st-words">
-${wordsHtml}
-      </ul>
-  </section>
-
-  ${sec('practice', 12, ' id="p-practice" class="st-sec">')}
-${head(IC.k_altrma, 'Alıştırmalar', 'Закрепим', 'Задания пронумерованы подряд через весь урок, как в учебнике.')}
-${drill}
-  </section>
-
-  ${sec('yasiz', words(L.yasiz.tr + ' ' + L.yasiz.ru + ' ' + L.yasiz.model), ' id="p-yasiz" class="st-sec">')}
-${head(IC.k_yasiz, 'Ya siz?', 'А у тебя?', 'Теперь история про тебя. Ответь вслух, потом сравни с образцом.')}
-      <div class="dy-you">
+${panel('yasiz', 'Ya siz?', 'А у тебя?', 'Ответь вслух, потом сравни с образцом.', `      <div class="dy-you">
         <p class="dy-you__q" lang="tr" data-say="${esc(L.yasiz.tr)}">${esc(L.yasiz.tr)}</p>
         <p>${esc(L.yasiz.ru)}</p>
         <button type="button" class="lx-btn lx-btn--ghost dy-you__btn" data-reveal aria-expanded="false">Показать образец</button>
         <p class="dy-you__model" lang="tr" data-say="${esc(L.yasiz.model)}" hidden>${esc(L.yasiz.model)}</p>
       </div>
-${culture(L.culture)}  </section>
+${culture(L.culture)}`)}
 
-  ${sec('dinleme', 12, ' id="p-dinleme" class="st-sec">')}
-${head(IC.k_hikye, 'Dinleme', 'Аудирование', 'Слушай фразу и выбирай перевод. Можно переслушать.')}
-${listen}
-  </section>
+${panel('practice', 'Alıştırma', 'Практика', '', practice.map(task).join('\n'))}
 
-  ${sec('yazma', 12, ' id="p-yazma" class="st-sec">')}
-${head(IC.k_altrma, 'Yazma', 'Письмо', 'Свой короткий текст по образцу дня.')}
-${write}
-  </section>
+${panel('simulator', 'Simülatör', 'Сыграй сцену сам', 'Ты на месте героя. Ошибёшься — будет подсказка.', sim ? `      <a-exercise ref="${sim.id}" data-sim></a-exercise>` : '')}
 
-  ${sec('konusma', 30, ' id="p-konusma" class="st-sec">')}
-${head(IC.k_yasiz, 'Konuşma', 'Говорение', 'Закрой текст и проговори сцену вслух, как в учебнике: <span lang="tr">Kitabı kapatalım</span>.')}
-${L.konusma ? speak(L.konusma, IC) : ''}
-  </section>
+${panel('konusma', 'Konuşma', 'Говорение', 'Закрой текст и проговори сцену за минуту.', L.konusma ? speak(L.konusma, IC) : '')}
 
-  ${sec('ozet', words(L.goals.flat().join(' ')), ' id="p-ozet" class="st-sec">')}
-${head(IC.k_zet, 'Özet', 'Что ты унёс из истории', esc(L.can_do))}
-      <div class="dy-selfcheck" data-ui><button type="button" class="lx-btn lx-btn--ghost" data-hide-ru aria-pressed="false">Скрыть перевод</button><span>Вспомни перевод, потом нажми на строку.</span></div>
-      <ol class="dy-goal">
-${goals}
-      </ol>
-${(L.after_ozet || []).map((v) => '      ' + viz(v, IC)).join('\n')}
-  </section>
-
-  ${sec('check', 13, ' id="p-check" class="st-sec">')}
+  <section data-section="check" data-words="11" id="p-check" class="lx-panel" role="tabpanel" aria-labelledby="t-check">
       <div class="lx-ph">
-        ${kicker(IC.k_snav, 'Sınav')}
-        <h2>Проверь себя</h2>
-        <p>Вопросы по фразам и словам истории. Нужно 80%, чтобы день засчитался.</p>
+        ${kicker(IC.tab_check, 'Sınav')}
+        <h2>Тест</h2>
+        <p>Вопросы по фразам и словам дня. Нужно 80%, чтобы урок засчитался.</p>
       </div>
-      <a-quiz ref="${checkId}"></a-quiz>${next}
+      <a-quiz ref="${checkId}"></a-quiz>
+      <div class="lx-res" data-ui hidden></div>
+${nextOf('check')}
+  </section>
+
+  <section data-section="cheat" data-words="${words(cheat)}" id="p-cheat" class="lx-panel" role="tabpanel" aria-labelledby="t-cheat">
+      <div class="lx-ph">
+        ${kicker(IC.tab_cheat, 'Özet')}
+        <h2>Шпаргалка дня</h2>
+        <div class="lx-cheat__ctrl" data-ui><label class="lx-switch"><input type="checkbox" data-hide-ru> Скрыть перевод</label></div>
+      </div>
+${(L.after_ozet || []).map((v) => '      ' + viz(v, IC)).join('\n')}
+      <table class="lx-table"><tbody>
+${cheat}
+      </tbody></table>
+${nextDay}
   </section>
 </main>
 
@@ -362,8 +374,8 @@ ${(L.after_ozet || []).map((v) => '      ' + viz(v, IC)).join('\n')}
 <script src="../kit/v1/gsap.min.js"></script>
 <script type="module" src="../kit/v1/kit.js"></script>
 <script src="../kit/v1/tracker.js" defer></script>
+<script src="../kit/v1/lexicon.js" defer></script>
 <script src="../kit/v1/day.js" defer></script>
-<script src="../kit/v1/story.js" defer></script>
 ${PAGE_JS}
 <script>
 ${readFileSync(join(ROOT, 'tools/viz.js'), 'utf8').trim()}
@@ -373,9 +385,43 @@ ${readFileSync(join(ROOT, 'tools/viz.js'), 'utf8').trim()}
 `;
 }
 
+/** Симулятор (как ex4 у дней A1): реплика собеседника → выбери свой ответ. Строится из реплик и выборов глав. */
+function simulator(D, L, id) {
+  const all = L.chapters.flatMap((c) => c.blocks);
+  const mine = all.filter((b) => b.b && b.b.who === 'Sen').map((b) => b.b);
+  const items = [];
+  for (const c of L.chapters) {
+    const bl = c.blocks;
+    bl.forEach((b, k) => {
+      const prev = bl.slice(0, k).reverse().find((x) => x.b && x.b.who !== 'Sen');
+      if (b.choice && prev) {
+        const ok = b.choice.opts.findIndex((o) => o.ok);
+        items.push({ bot: { tr: prev.b.tr, ru: prev.b.ru }, options: b.choice.opts.map((o) => ({ tr: o.tr, ru: o.ru, ...(o.ok ? {} : { hint: strip(o.then).replace(/«|»/g, '') }) })), answer: ok, reply: null });
+      } else if (b.b && b.b.who === 'Sen' && prev && bl[k - 1] === prev) {
+        const others = mine.filter((m) => m.tr !== b.b.tr).slice(0, 2);
+        if (others.length < 2) return;
+        const opts = [b.b, ...others];
+        const rot = items.length % 3;
+        const order = [...opts.slice(rot), ...opts.slice(0, rot)];
+        items.push({ bot: { tr: prev.b.tr, ru: prev.b.ru }, options: order.map((o) => ({ tr: o.tr, ru: o.ru, ...(o === b.b ? {} : { hint: 'Эта реплика из другого места разговора' }) })), answer: order.indexOf(b.b), reply: null });
+      }
+    });
+  }
+  const pick = items.slice(0, 5).map((it, i) => ({ id: String(i + 1), ...it, explanation: `Подходит: ${it.options[it.answer].tr} — ${it.options[it.answer].ru}` }));
+  const last = [...all].reverse().find((b) => b.b && b.b.who !== 'Sen');
+  const who = {};
+  all.filter((b) => b.b && b.b.who !== 'Sen').forEach((b) => (who[b.b.who] = (who[b.b.who] || 0) + 1));
+  return {
+    id, lesson: L.n, kind: 'practice', skill: 'situation', type: 'custom', difficulty: 3,
+    instruction: D.title_tr, description: D.place_ru, items: pick,
+    final: { tr: last.b.tr, ru: last.b.ru },
+    character: { name: D.place_tr, role: D.place_ru },
+  };
+}
+
 function design(D) {
   const tpl = readFileSync(join(ROOT, 'tools/design.css'), 'utf8');
-  return tpl.replaceAll('__NAME__', D.design.name).replaceAll('__ACCENT__', D.design.accent) + readFileSync(join(ROOT, 'tools/viz.css'), 'utf8') + readFileSync(join(ROOT, 'tools/viz-book.css'), 'utf8');
+  return tpl.replaceAll('__NAME__', D.design.name).replaceAll('__ACCENT__', D.design.accent) + readFileSync(join(ROOT, 'tools/viz.css'), 'utf8') + readFileSync(join(ROOT, 'tools/viz-book.css'), 'utf8') + readFileSync(join(ROOT, 'tools/design-scenes.css'), 'utf8');
 }
 
 function buildDay(id) {
@@ -399,12 +445,15 @@ function buildDay(id) {
     const dinle = listening(L, `${id}.ex${++n}`, r);
     dinle._task = { kit: 'dinle', rubric: 'Dinleyelim.' };
     list.push(dinle);
+    const sim = simulator(D, L, `${id}.ex${++n}`);
+    sim._sim = true;
+    list.push(sim);
     list.push(check(L, `${id}.check${L.n}`, r));
     all.push(...list);
     writeFileSync(join(out, L.n === 1 ? 'index.html' : `lesson-${L.n}.html`), page(D, L, scene, list));
   });
 
-  const clean = all.map(({ _task, ...e }) => e);
+  const clean = all.map(({ _task, _sim, ...e }) => e);
   writeFileSync(join(out, 'exercises.json'), JSON.stringify({ topic: id, exercises: clean }, null, 2) + '\n');
   writeFileSync(join(out, 'media/design.css'), design(D));
   writeFileSync(join(out, 'media/design.json'), JSON.stringify({ name: D.design.name }) + '\n');

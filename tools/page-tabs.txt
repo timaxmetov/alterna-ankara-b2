@@ -1,0 +1,255 @@
+/** Диалог главы: реплики появляются по одной (lx-chat из kit, как в днях A1). Повествование — одна строка-подпись. */
+function dlgBox(ch, i) {
+  const lines = ch.blocks.filter((b) => b.b).map((b, k) => {
+    const me = b.b.who === 'Sen';
+    return `          <div class="lx-msg${me ? ' lx-msg--me' : ''}" data-line="${k}"><span class="lx-msg__ava" aria-hidden="true" data-ui>${esc(b.b.ava || ava(b.b.who))}</span><span class="lx-msg__who" lang="tr">${esc(b.b.who)}</span><p class="lx-msg__tr" lang="tr" data-say="${esc(b.b.tr)}">${esc(b.b.tr)}</p><p class="lx-msg__ru">${esc(b.b.ru)}</p></div>`;
+  }).join('\n');
+  const [t, ...pl] = ch.time.split('·').map((s) => s.trim());
+  const cap = ch.caption || '';
+  const quirks = ch.blocks.filter((b) => b.quirk).map((b) => `        <details class="vz-more"><summary><span class="vz-more__ico">${IC.quirk}</span>Кстати</summary><p>${rich(b.quirk)}</p></details>`).join('\n');
+  const vizs = ch.blocks.filter((b) => b.viz && ['map', 'scale', 'bars'].includes(b.viz.type)).map((b) => '        ' + viz(b.viz, IC)).join('\n');
+  return `      <div class="lx-dlg${i === 0 ? ' is-on' : ''}" data-dlg-box="${i}" id="ch-${i + 1}">
+        <div class="lx-dlg__head"><h3>${esc(ch.title)}</h3><span class="lx-badge">${esc(t)}</span></div>
+        <p class="lx-place"><span class="lx-ico">${IC.place}</span><span lang="tr">${esc(pl.join(' · '))}</span></p>${cap ? `\n        <p class="vz-cap">${rich(cap)}</p>` : ''}
+        <div class="lx-chat" data-chat="${i}">
+${lines}
+        </div>
+        ${IC.chat_ctrl}
+      </div>
+${vizs}${vizs ? '\n' : ''}${quirks}`;
+}
+
+/** Карточка-подсказка: заголовок и примеры видны, объяснение свёрнуто. */
+function tipCard(n) {
+  const ex = (n.ex || []).map(([tr, ru]) => `<li><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></li>`).join('');
+  return `      <article class="vz vz-tip"><p class="vz-tip__h"><span class="vz-tip__ico">${IC.note}</span>${esc(n.h)}</p>${ex ? `<ul class="vz-tip__ex">${ex}</ul>` : ''}<details class="vz-more"><summary>Почему так</summary><p>${rich(n.text)}</p></details></article>`;
+}
+
+/** Карточки слов с примером из урока на обороте (lx-cards из kit). */
+function wordCards(L) {
+  const lines = L.chapters.flatMap((c) => c.blocks.filter((b) => b.b).map((b) => b.b));
+  const cards = L.words.map(([tr, ru]) => {
+    const key = tr.toLocaleLowerCase('tr').split(' ')[0].slice(0, 5);
+    const ex = lines.find((b) => b.tr.toLocaleLowerCase('tr').includes(key)) || { tr: L.goals[0][0], ru: L.goals[0][1] };
+    return `        <article class="lx-card" data-word="${esc(tr)}" data-g="0" tabindex="0">
+          <div class="lx-card__face">
+            <div class="lx-card__top"><span class="lx-ico">${IC.card}</span><div class="lx-card__w"><b class="lx-card__tr" lang="tr">${esc(tr)}</b><span class="lx-card__ru">${esc(ru)}</span></div><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></div>
+          </div>
+          <div class="lx-card__back">
+            <div class="lx-ex"><p class="lx-ex__tr"><a-say>${esc(ex.tr)}</a-say></p><p class="lx-ex__ru">${esc(ex.ru)}</p></div>
+          </div>
+          <div class="lx-card__acts" data-ui><button type="button" class="lx-card__flip" aria-expanded="false">Пример</button><button type="button" class="lx-card__know" aria-pressed="false">Знаю</button></div>
+        </article>`;
+  }).join('\n');
+  return `      <p class="lx-empty" data-ui hidden>Ничего не нашлось</p>
+      <div class="lx-cards" data-g="0">
+${cards}
+      </div>`;
+}
+
+const TABS = [
+  ['hedef', 'Hedef', 'цель'], ['diyalog', 'Diyalog', 'сцены'], ['dilbilgisi', 'Dil bilgisi', 'схемы'], ['sozluk', 'Sözlük', 'слова'],
+  ['yasiz', 'Ya siz?', 'а у тебя'], ['practice', 'Alıştırma', 'практика'], ['simulator', 'Simülatör', 'квест'],
+  ['konusma', 'Konuşma', 'говорение'], ['check', 'Sınav', 'тест'], ['cheat', 'Özet', 'итог'],
+];
+const TAB_ICON = { hedef: 'tab_hedef', diyalog: 'tab_diyalog', dilbilgisi: 'note', sozluk: 'tab_sozluk', yasiz: 'tab_yasiz', practice: 'tab_practice', simulator: 'tab_simulator', konusma: 'quirk', check: 'tab_check', cheat: 'tab_cheat' };
+
+function page(D, L, scene, exList) {
+  const many = D.lessons.length > 1;
+  const part = many ? ` · часть ${L.n}` : '';
+  const nav = many
+    ? `<nav class="lx-lessons" aria-label="Части дня">${D.lessons.map((x) => `<a href="${x.n === 1 ? 'index.html' : `lesson-${x.n}.html`}"${x.n === L.n ? ' aria-current="page"' : ''}>${x.n}</a>`).join('')}</nav>`
+    : '';
+  const tabs = TABS.map(([k, tr, ru], i) => `    <button type="button" class="lx-tab" role="tab" id="t-${k}" aria-controls="p-${k}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-tab="${k}"><span class="lx-tab__ico">${IC[TAB_ICON[k]]}</span><b lang="tr">${tr}</b><small>${ru}</small><span class="lx-tab__ok" aria-hidden="true"></span></button>`).join('\n');
+  const nextOf = (k) => { const i = TABS.findIndex((t) => t[0] === k); const n = TABS[i + 1]; return n ? `      <div class="lx-foot" data-ui><button type="button" class="lx-btn lx-foot__next" data-tab-go="${n[0]}">Дальше: ${n[1]} (${n[2]})</button></div>` : ''; };
+  const panel = (k, kick, h2, hint, body) => `  <section data-section="${k}" data-words="${Math.max(8, words(strip(body)))}" id="p-${k}" class="lx-panel" role="tabpanel" aria-labelledby="t-${k}"${k === 'hedef' ? '' : ' hidden'}>
+      <div class="lx-ph">
+        ${kicker(IC[TAB_ICON[k]], kick)}
+        <h2>${h2}</h2>${hint ? `\n        <p class="lx-hint">${hint}</p>` : ''}
+      </div>
+${body}
+${nextOf(k)}
+  </section>`;
+  const goalLi = ([tr, ru], i, tag = '') => `        <li class="dy-goal__i" style="--i:${i}"><span class="dy-goal__n" data-ui>${tag}${i + 1}</span><span class="dy-goal__w"><b lang="tr" data-say="${esc(tr)}">${esc(tr)}</b><span>${esc(ru)}</span></span><button type="button" class="lx-say" data-say="${esc(tr)}" aria-label="Послушать" data-ui><span class="lx-say__ico">${IC.say}</span></button></li>`;
+  const op = L.opener || { skills: [L.can_do], grammar: [], words: [] };
+  const trText = [
+    ...L.chapters.flatMap((c) => c.blocks.map((b) => [b.b?.tr, b.note?.text, ...(b.note?.ex || []).map((x) => x[0]), b.quirk, ...(b.choice?.opts || []).map((o) => o.tr)].filter(Boolean).join(' '))),
+    ...L.goals.map((g) => g[0]), L.yasiz.tr, L.yasiz.model, ...(L.konusma?.model || []).map((m) => m[1]),
+  ].join(' ');
+  const practice = exList.filter((e) => e.kind === 'practice' && e.type !== 'sim');
+  const sim = exList.find((e) => e.type === 'sim');
+  let no = 0;
+  const task = (e) => `      <div class="dy-task" data-kit="${e._task.kit}"><p class="dy-rubric"><span class="dy-no" data-ui>${++no}</span><span lang="tr">${esc(e._task.rubric)}</span></p><a-exercise ref="${e.id}"${e.type === 'custom' ? ' data-free' : ''}></a-exercise></div>`;
+  const checkId = exList.find((e) => e.kind === 'check').id;
+  const nextDay = many && L.n < D.lessons.length
+    ? `      <a class="lx-next" href="lesson-${L.n + 1}.html">Часть ${L.n + 1} →</a>`
+    : D._next ? `      <a class="lx-next" href="../${D._next.id}/" data-next-day="${D._next.id}">День ${D._next.day}: ${esc(D._next.title_ru)} →</a>` : '';
+  const notes = L.chapters.flatMap((c) => c.blocks.filter((b) => b.note).map((b) => b.note));
+  const storyViz = L.chapters.flatMap((c) => c.blocks.filter((b) => b.viz && ['anatomy', 'pairs'].includes(b.viz.type)).map((b) => b.viz));
+  const cheat = [...L.goals, ...L.words].map(([tr, ru]) => `        <tr><td lang="tr" data-say="${esc(tr)}">${esc(tr)}</td><td>${esc(ru)}</td></tr>`).join('\n');
+  const vizCount = 1 + L.chapters.reduce((s, c) => s + c.blocks.filter((b) => b.viz).length, 0) + (L.grammar?.viz || []).length + (L.after_story || []).length + (L.after_ozet || []).length + 2;
+
+  return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="alterna:topic" content="${D.id}">
+<meta name="alterna:version" content="1">
+<meta name="alterna:lesson" content="${L.n}">
+<meta name="alterna:kind" content="day">
+<title>День ${D.day}. ${esc(D.title_ru)}${part}</title>
+<meta name="description" content="Alterna · ${CITY.level} · ${CITY.ru}, день ${D.day}. ${esc(strip(L.hook))}">
+<meta name="theme-color" content="${D.design.accent}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="День ${D.day}. ${esc(D.title_ru)} · Alterna ${CITY.level}">
+<meta property="og:description" content="${esc(D.can_do)}">
+<meta property="og:image" content="media/og.png">
+<link rel="icon" href="${favicon(D.design.accent)}">
+<link rel="stylesheet" href="../kit/v1/kit.css">
+<link rel="stylesheet" href="../kit/v1/lexicon.css">
+<link rel="stylesheet" href="../kit/v1/day.css">
+<link rel="stylesheet" href="../kit/v1/lexicon-fonts.css">
+<link rel="stylesheet" href="media/design.css">
+</head>
+<body class="lx dy" data-city="${CITY.slug}" data-lessons="${D.lessons.length}" data-read="hedef diyalog dilbilgisi sozluk yasiz konusma cheat" data-design="${D.design.name}">
+<!-- Собрано tools/build.mjs из src/days/${D.id}.json в вкладочном формате дней платформы (как d.a1.NN). Руками не править. -->
+<header class="lx-app">
+  <span class="lx-app__logo"><span class="lx-app__ico">${IC.map}</span></span>
+  <div class="lx-app__t"><b>Alterna · ${CITY.level} · день ${D.day}</b><small>${esc(D.place_ru)} · <span lang="tr">${esc(D.place_tr)}</span></small></div>
+  ${nav}
+  <div class="lx-app__prog" title="Пройдено разделов урока"><svg class="lx-ring lx-app__ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="lx-ring__bg" cx="18" cy="18" r="15.9155"/><circle class="lx-ring__fg" cx="18" cy="18" r="15.9155" pathLength="100" stroke-dasharray="0 100"/><text x="18" y="21" text-anchor="middle">0%</text></svg></div>
+</header>
+<main>
+  <section data-section="intro" data-words="${words(D.title_ru + ' ' + L.hook)}" class="lx-hero">
+      <div class="lx-scene" aria-hidden="true" data-ui>${scene}</div>
+      <p class="lx-tag">${CITY.level} · ${CITY.ru} · день ${D.day}</p>
+      <h1>${esc(D.title_ru)}</h1>
+      <p class="lx-hero__tr" lang="tr">${esc(D.title_tr)}</p>
+      <p class="lx-hero__meta"><span class="lx-hero__pin">${IC.pin}</span><span>${esc(D.place_ru)}</span>${many ? ` · часть ${L.n} из ${D.lessons.length}` : ''}</p>
+      <p class="lx-hero__intro">${rich(L.hook)}</p>
+      <ul class="lx-stats" data-ui>
+        <li><b>${L.minutes}</b><span>${plural(L.minutes, ['минута', 'минуты', 'минут'])}</span></li><li><b>${L.chapters.length}</b><span>${plural(L.chapters.length, ['сцена', 'сцены', 'сцен'])}</span></li><li><b>${vizCount}</b><span>${plural(vizCount, ['схема', 'схемы', 'схем'])}</span></li><li><b>${TABS.length}</b><span>разделов</span></li>
+      </ul>
+  </section>
+
+  <nav class="lx-tabs" data-scrollbar role="tablist" aria-label="Разделы урока">
+${tabs}
+    <span class="lx-tabs__line" aria-hidden="true"></span>
+  </nav>
+
+${panel('hedef', 'Hedef', 'Что ты скажешь сегодня', esc(L.can_do), `${opener(op)}
+      <ol class="dy-goal">
+${(L.hedef?.lines || L.goals.slice(0, 3)).map((g, i) => goalLi(g, i, 'B')).join('\n')}
+      </ol>
+${prep(L.prep)}${route(L.chapters)}`)}
+
+${panel('diyalog', 'Diyalog', 'Сцены дня', 'Реплики появляются по одной. Нажми на турецкую фразу, чтобы услышать её.', `${L.chapters.map(dlgBox).join('\n')}
+${(L.after_story || []).map((v) => '      ' + viz(v, IC)).join('\n')}`)}
+
+${panel('dilbilgisi', 'Dil bilgisi', esc(L.grammar?.title || 'Грамматика дня'), 'Листай шаги и нажимай на части схем.', `${(L.grammar?.viz || []).map((v) => '      ' + viz(v, IC)).join('\n')}
+${storyViz.map((v) => '      ' + viz(v, IC)).join('\n')}
+${notes.map(tipCard).join('\n')}`)}
+
+${panel('sozluk', 'Sözlük', 'Слова дня', 'Крупнее — чаще звучало. Карточка переворачивается и показывает пример из сцены.', `${cloud(L.words, trText)}
+      <div class="lx-learn" data-ui>${IC.learn}<p>Выучено <b data-known>0</b> из <b>${L.words.length}</b></p><label class="lx-switch"><input type="checkbox" data-hide-ru> Скрыть перевод</label></div>
+${wordCards(L)}`)}
+
+${panel('yasiz', 'Ya siz?', 'А у тебя?', 'Ответь вслух, потом сравни с образцом.', `      <div class="dy-you">
+        <p class="dy-you__q" lang="tr" data-say="${esc(L.yasiz.tr)}">${esc(L.yasiz.tr)}</p>
+        <p>${esc(L.yasiz.ru)}</p>
+        <button type="button" class="lx-btn lx-btn--ghost dy-you__btn" data-reveal aria-expanded="false">Показать образец</button>
+        <p class="dy-you__model" lang="tr" data-say="${esc(L.yasiz.model)}" hidden>${esc(L.yasiz.model)}</p>
+      </div>
+${culture(L.culture)}`)}
+
+${panel('practice', 'Alıştırma', 'Практика', '', practice.map(task).join('\n'))}
+
+${panel('simulator', 'Simülatör', 'Сыграй сцену сам', 'Ты на месте героя. Ошибёшься — будет подсказка.', sim ? `      <a-exercise ref="${sim.id}" data-sim></a-exercise>` : '')}
+
+${panel('konusma', 'Konuşma', 'Говорение', 'Закрой текст и проговори сцену за минуту.', L.konusma ? speak(L.konusma, IC) : '')}
+
+  <section data-section="check" data-words="11" id="p-check" class="lx-panel" role="tabpanel" aria-labelledby="t-check" hidden>
+      <div class="lx-ph">
+        ${kicker(IC.tab_check, 'Sınav')}
+        <h2>Тест</h2>
+        <p>Вопросы по фразам и словам дня. Нужно 80%, чтобы урок засчитался.</p>
+      </div>
+      <a-quiz ref="${checkId}"></a-quiz>
+      <div class="lx-res" data-ui hidden></div>
+${nextOf('check')}
+  </section>
+
+  <section data-section="cheat" data-words="${words(cheat)}" id="p-cheat" class="lx-panel" role="tabpanel" aria-labelledby="t-cheat" hidden>
+      <div class="lx-ph">
+        ${kicker(IC.tab_cheat, 'Özet')}
+        <h2>Шпаргалка дня</h2>
+        <div class="lx-cheat__ctrl" data-ui><label class="lx-switch"><input type="checkbox" data-hide-ru> Скрыть перевод</label></div>
+      </div>
+${(L.after_ozet || []).map((v) => '      ' + viz(v, IC)).join('\n')}
+      <table class="lx-table"><tbody>
+${cheat}
+      </tbody></table>
+${nextDay}
+  </section>
+</main>
+
+<template data-achievement data-title="День ${D.day} пройден" data-text="${esc(D.title_ru)}. ${esc(D.can_do)}">
+  <svg class="lx-stamp" viewBox="0 0 160 160" aria-hidden="true">
+    <defs><path id="lx-ring" d="M80 80m-57 0a57 57 0 1 1 114 0a57 57 0 1 1-114 0"/></defs>
+    <circle cx="80" cy="80" r="74" fill="var(--lx-paper)" stroke="var(--lx-accent)" stroke-width="5"/>
+    <circle cx="80" cy="80" r="45" fill="none" stroke="var(--lx-accent)" stroke-width="1.5" stroke-dasharray="3 4"/>
+    <text font-size="12.5" font-weight="800" letter-spacing="2.6" fill="var(--lx-accent)"><textPath href="#lx-ring">${CITY.ring}</textPath></text>
+    <text class="lx-stamp__n" x="80" y="88" text-anchor="middle" font-size="38" font-weight="900" fill="var(--lx-accent)">${D.day}</text>
+    <text x="80" y="106" text-anchor="middle" font-size="11" font-weight="800" letter-spacing="2" fill="var(--lx-ink)">GÜN</text>
+  </svg>
+</template>
+
+<script src="../kit/v1/gsap.min.js"></script>
+<script type="module" src="../kit/v1/kit.js"></script>
+<script src="../kit/v1/tracker.js" defer></script>
+<script src="../kit/v1/lexicon.js" defer></script>
+<script src="../kit/v1/day.js" defer></script>
+${PAGE_JS}
+<script>
+${readFileSync(join(ROOT, 'tools/viz.js'), 'utf8').trim()}
+</script>
+</body>
+</html>
+`;
+}
+
+/** Симулятор (как ex4 у дней A1): реплика собеседника → выбери свой ответ. Строится из реплик и выборов глав. */
+function simulator(D, L, id) {
+  const all = L.chapters.flatMap((c) => c.blocks);
+  const mine = all.filter((b) => b.b && b.b.who === 'Sen').map((b) => b.b);
+  const items = [];
+  for (const c of L.chapters) {
+    const bl = c.blocks;
+    bl.forEach((b, k) => {
+      const prev = bl.slice(0, k).reverse().find((x) => x.b && x.b.who !== 'Sen');
+      if (b.choice && prev) {
+        const ok = b.choice.opts.findIndex((o) => o.ok);
+        items.push({ bot: { tr: prev.b.tr, ru: prev.b.ru }, options: b.choice.opts.map((o) => ({ tr: o.tr, ru: o.ru, ...(o.ok ? {} : { hint: strip(o.then).replace(/«|»/g, '') }) })), answer: ok, reply: null });
+      } else if (b.b && b.b.who === 'Sen' && prev && bl[k - 1] === prev) {
+        const others = mine.filter((m) => m.tr !== b.b.tr).slice(0, 2);
+        if (others.length < 2) return;
+        const opts = [b.b, ...others];
+        const rot = items.length % 3;
+        const order = [...opts.slice(rot), ...opts.slice(0, rot)];
+        items.push({ bot: { tr: prev.b.tr, ru: prev.b.ru }, options: order.map((o) => ({ tr: o.tr, ru: o.ru, ...(o === b.b ? {} : { hint: 'Эта реплика из другого места разговора' }) })), answer: order.indexOf(b.b), reply: null });
+      }
+    });
+  }
+  const pick = items.slice(0, 5).map((it, i) => ({ id: String(i + 1), ...it, explanation: `Подходит: ${it.options[it.answer].tr} — ${it.options[it.answer].ru}` }));
+  const last = [...all].reverse().find((b) => b.b && b.b.who !== 'Sen');
+  const who = {};
+  all.filter((b) => b.b && b.b.who !== 'Sen').forEach((b) => (who[b.b.who] = (who[b.b.who] || 0) + 1));
+  return {
+    id, lesson: L.n, kind: 'practice', skill: 'situation', type: 'custom', difficulty: 3,
+    instruction: D.title_tr, description: D.place_ru, items: pick,
+    final: { tr: last.b.tr, ru: last.b.ru },
+    character: { name: Object.entries(who).sort((a, b) => b[1] - a[1])[0][0], role: D.place_ru },
+  };
+}

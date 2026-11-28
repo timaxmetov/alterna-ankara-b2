@@ -32,8 +32,10 @@ try {
   for (const [n, sel] of sels.entries()) {
     const r = await send('Runtime.evaluate', { returnByValue: true, awaitPromise: true, expression: `(async () => {
       document.documentElement.style.scrollBehavior = 'auto';
+      let s = ${JSON.stringify(sel)};
+      if (s.startsWith('@')) { const t = document.getElementById('t-' + s.slice(1)); if (t) t.click(); await new Promise((r) => setTimeout(r, 700)); s = '#p-' + s.slice(1); }
       document.querySelectorAll('.vz').forEach((v) => v.classList.add('is-in'));
-      const e = document.querySelector(${JSON.stringify(sel)});
+      const e = document.querySelector(s);
       if (!e) return null;
       window.scrollTo(0, e.getBoundingClientRect().top + scrollY - 10);
       await new Promise((r) => setTimeout(r, 1600));

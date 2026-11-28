@@ -1,0 +1,12 @@
+
+/* переключатель сцен (сегмент-контрол в стиле iOS) и переход к следующей сцене */
+.lx .vz-scenes { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 4px; margin: 14px 0 0; padding: 4px; border-radius: 18px; background: rgba(118, 118, 128, .12); }
+.lx .vz-scenes__b { display: grid; justify-items: center; min-height: 52px; padding: 6px 4px; border: 0; border-radius: 14px; background: none; color: var(--lx-ink); font: inherit; cursor: pointer; transition: background-color .25s ease, box-shadow .25s ease; }
+.lx .vz-scenes__b b { font-size: 17px; font-weight: 700; }
+.lx .vz-scenes__b span { font-size: 12px; color: var(--lx-muted); font-variant-numeric: tabular-nums; }
+.lx .vz-scenes__b[aria-pressed="true"] { background: #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, .12), 0 3px 1px rgba(0, 0, 0, .04); }
+.lx .vz-scenes__b[aria-pressed="true"] b { color: var(--lx-accent); }
+.lx .vz-scene-next { display: flex; width: 100%; justify-content: center; margin-top: 16px; }
+.lx .lx-dlg .vz { box-shadow: none; background: var(--lx-surf2); margin: 16px 0 0; }
+.lx .lx-dlg .vz-more { box-shadow: none; background: var(--lx-surf2); }
+.lx .lx-learn { flex-wrap: wrap; row-gap: 8px; }
